@@ -1,6 +1,10 @@
+using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
+using TaskManagement.Backend.Core.Context;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContextPool<AppDbContext>(optionsBuilder => optionsBuilder.UseNpgsql(builder.Configuration.GetConnectionString("Postgres")));
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
