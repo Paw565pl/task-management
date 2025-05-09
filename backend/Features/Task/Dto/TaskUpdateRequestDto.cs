@@ -1,7 +1,7 @@
 ﻿using TaskManagement.Backend.Features.Task.Entity;
-using TaskStatus = System.Threading.Tasks.TaskStatus;
+using TaskStatus = TaskManagement.Backend.Features.Task.Entity.TaskStatus;
 
-namespace TaskManagement.Backend.Features.Task.dto;
+namespace TaskManagement.Backend.Features.Task.Dto;
 
 public record TaskUpdateRequestDto(
     string Title,

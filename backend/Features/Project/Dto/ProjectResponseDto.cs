@@ -1,4 +1,4 @@
-﻿namespace TaskManagement.Backend.Features.Project.dto;
+﻿namespace TaskManagement.Backend.Features.Project.Dto;
 
 public record ProjectResponseDto(
     long Id,

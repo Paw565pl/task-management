@@ -1,6 +1,6 @@
 ﻿using TaskManagement.Backend.Features.Task.Entity;
 
-namespace TaskManagement.Backend.Features.Task.dto;
+namespace TaskManagement.Backend.Features.Task.Dto;
 
 public record TaskCreateRequestDto(
     string Title,
