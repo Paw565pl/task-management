@@ -15,11 +15,9 @@ public class ProjectEntity
     [Column("description"), MaxLength(2000)]
     public string? Description { get; set; }
 
-    [Column("created_at"), DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public DateTime CreatedAt { get; set; }
+    [Column("created_at")] public DateTime CreatedAt { get; } = DateTime.UtcNow;
 
-    [Column("updated_at"), DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-    public DateTime UpdatedAt { get; set; }
+    [Column("updated_at")] public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
     [InverseProperty(nameof(TaskEntity.Project))]
     public IList<TaskEntity> Tasks { get; } = [];
