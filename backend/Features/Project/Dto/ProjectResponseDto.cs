@@ -1,10 +1,11 @@
-﻿namespace TaskManagement.Backend.Features.Project.Dto;
+namespace TaskManagement.Backend.Features.Project.Dto;
 
 public record ProjectResponseDto(
     long Id,
     string Name,
     string? Description,
     int TaskCount,
-    DateTime? CreatedAt,
-    DateTime? UpdatedAt
+    int CompletedTaskCount,
+    DateTime CreatedAt,
+    DateTime UpdatedAt
 );
