@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using TaskManagement.Backend.Core.Context;
+using TaskManagement.Backend.Features.Project.Mapper;
+using TaskManagement.Backend.Features.Project.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +13,10 @@ builder.Services.AddDbContextPool<AppDbContext>(optionsBuilder =>
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddHealthChecks();
+builder.Services.AddControllers();
+
+builder.Services.AddSingleton<ProjectMapper>();
+builder.Services.AddScoped<ProjectService>();
 
 var app = builder.Build();
 
