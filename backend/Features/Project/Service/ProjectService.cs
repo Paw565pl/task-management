@@ -15,24 +15,21 @@ public class ProjectService(AppDbContext appDbContext)
     {
         var query = appDbContext.Projects.AsNoTracking();
 
-        if (string.IsNullOrWhiteSpace(sortOptionsDto?.SortBy)) query = query.OrderBy(w => w.Id);
-        else
+        var sortField = sortOptionsDto?.SortBy?.ToLower();
+        var sortDirection = sortOptionsDto?.SortDirection;
+        query = sortField switch
         {
-            var sortField = sortOptionsDto.SortBy.ToLower();
-            query = sortField switch
-            {
-                "name" => sortOptionsDto.SortDirection == SortDirection.Asc
-                    ? query.OrderBy(w => w.Name)
-                    : query.OrderByDescending(w => w.Name),
-                "createdat" => sortOptionsDto.SortDirection == SortDirection.Asc
-                    ? query.OrderBy(w => w.CreatedAt)
-                    : query.OrderByDescending(w => w.CreatedAt),
-                "UpdatedAt" => sortOptionsDto.SortDirection == SortDirection.Asc
-                    ? query.OrderBy(w => w.UpdatedAt)
-                    : query.OrderByDescending(w => w.UpdatedAt),
-                _ => query.OrderBy(w => w.Id)
-            };
-        }
+            "name" => sortDirection == SortDirection.Asc
+                ? query.OrderBy(p => p.Name).ThenBy(p => p.Id)
+                : query.OrderByDescending(p => p.Name).ThenBy(p => p.Id),
+            "created_at" => sortDirection == SortDirection.Asc
+                ? query.OrderBy(p => p.CreatedAt).ThenBy(p => p.Id)
+                : query.OrderByDescending(p => p.CreatedAt).ThenBy(p => p.Id),
+            "updated_at" => sortDirection == SortDirection.Asc
+                ? query.OrderBy(p => p.UpdatedAt).ThenBy(p => p.Id)
+                : query.OrderByDescending(p => p.UpdatedAt).ThenBy(p => p.Id),
+            _ => query.OrderBy(p => p.Id)
+        };
 
         var total = await query.CountAsync();
 
@@ -47,7 +44,7 @@ public class ProjectService(AppDbContext appDbContext)
 
     public async Task<ProjectResponseDto> GetByIdAsync(long id)
     {
-        var project = await appDbContext.Projects.AsNoTracking().Where(project => project.Id == id)
+        var project = await appDbContext.Projects.AsNoTracking().Where(p => p.Id == id)
             .ToResponseDto().FirstOrDefaultAsync();
         if (project is null) throw new ProblemDetailsException(ProjectExceptionReasons.NotFound);
 
