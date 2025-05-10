@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using TaskManagement.Backend.Core.Context;
+using TaskManagement.Backend.Core.ExceptionHandler;
 using TaskManagement.Backend.Features.Project.Mapper;
 using TaskManagement.Backend.Features.Project.Service;
 
@@ -14,6 +15,9 @@ builder.Services.AddDbContextPool<AppDbContext>(optionsBuilder =>
 builder.Services.AddOpenApi();
 builder.Services.AddHealthChecks();
 builder.Services.AddControllers();
+
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 builder.Services.AddSingleton<ProjectMapper>();
 builder.Services.AddScoped<ProjectService>();
@@ -44,6 +48,7 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 
+app.UseExceptionHandler();
 app.MapHealthChecks("/api/v1/health");
 app.MapControllers();
 
