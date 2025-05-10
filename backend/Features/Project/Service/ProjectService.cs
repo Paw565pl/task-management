@@ -7,7 +7,7 @@ using TaskStatus = TaskManagement.Backend.Features.Task.Entity.TaskStatus;
 
 namespace TaskManagement.Backend.Features.Project.Service;
 
-public class ProjectService(AppDbContext appDbContext, ProjectMapper projectMapper)
+public class ProjectService(AppDbContext appDbContext)
 {
     public async Task<PageResponseDto<ProjectResponseDto>> GetAllAsync(SortOptionsDto? sortOptionsDto, PageOptionsDto? pageOptionsDto)
     {
@@ -38,41 +38,22 @@ public class ProjectService(AppDbContext appDbContext, ProjectMapper projectMapp
         var pageSize = pageOptionsDto?.PageSize <= 100 ? pageOptionsDto.PageSize : 20;
         query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
 
-        var content = await query.Select(project => new ProjectResponseDto
-        (
-            project.Id,
-            project.Name,
-            project.Description,
-            project.Tasks.Count,
-            project.Tasks.Count(task => task.Status == TaskStatus.Done),
-            project.CreatedAt,
-            project.UpdatedAt
-        )).ToListAsync();
+        var content = await query.ToResponseDto().ToListAsync();
 
         return new(content, total, pageNumber, pageSize);
     }
 
     public async Task<ProjectResponseDto?> GetByIdAsync(long id)
     {
-        return await appDbContext.ProjectEntities.Where(project => project.Id == id).Select(project =>
-            new ProjectResponseDto
-            (
-                project.Id,
-                project.Name,
-                project.Description,
-                project.Tasks.Count,
-                project.Tasks.Count(task => task.Status == TaskStatus.Done),
-                project.CreatedAt,
-                project.UpdatedAt
-            )).AsNoTracking().FirstOrDefaultAsync();
+        return await appDbContext.ProjectEntities.AsNoTracking().Where(project => project.Id == id).ToResponseDto().FirstOrDefaultAsync();
     }
 
     public async Task<ProjectResponseDto> CreateAsync(ProjectRequestDto projectRequestDto)
     {
-        var project = projectMapper.ToEntity(projectRequestDto);
+        var project = ProjectMapper.ToEntity(projectRequestDto);
         var savedProject = await appDbContext.ProjectEntities.AddAsync(project);
         await appDbContext.SaveChangesAsync();
 
-        return projectMapper.ToResponseDto(savedProject.Entity);
+        return ProjectMapper.ToResponseDto(savedProject.Entity);
     }
 }
