@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using TaskManagement.Backend.Core.Dto;
 using TaskManagement.Backend.Features.Project.Dto;
 using TaskManagement.Backend.Features.Project.Service;
 
@@ -9,9 +10,10 @@ namespace TaskManagement.Backend.Features.Project.Controller;
 public class ProjectController(ProjectService projectService) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll([FromQuery] SortOptionsDto? sortOptionsDto, [FromQuery] PageOptionsDto? pageOptionsDto
+        )
     {
-        return Ok(await projectService.GetAllAsync());
+        return Ok(await projectService.GetAllAsync(sortOptionsDto, pageOptionsDto));
     }
 
     [HttpGet("{id:long}")]
