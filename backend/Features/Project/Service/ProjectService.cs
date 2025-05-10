@@ -1,15 +1,17 @@
 using Microsoft.EntityFrameworkCore;
 using TaskManagement.Backend.Core.Context;
 using TaskManagement.Backend.Core.Dto;
+using TaskManagement.Backend.Core.ExceptionHandler;
 using TaskManagement.Backend.Features.Project.Dto;
+using TaskManagement.Backend.Features.Project.Exception;
 using TaskManagement.Backend.Features.Project.Mapper;
-using TaskStatus = TaskManagement.Backend.Features.Task.Entity.TaskStatus;
 
 namespace TaskManagement.Backend.Features.Project.Service;
 
 public class ProjectService(AppDbContext appDbContext)
 {
-    public async Task<PageResponseDto<ProjectResponseDto>> GetAllAsync(SortOptionsDto? sortOptionsDto, PageOptionsDto? pageOptionsDto)
+    public async Task<PageResponseDto<ProjectResponseDto>> GetAllAsync(SortOptionsDto? sortOptionsDto,
+        PageOptionsDto? pageOptionsDto)
     {
         var query = appDbContext.ProjectEntities.AsNoTracking();
 
@@ -43,17 +45,28 @@ public class ProjectService(AppDbContext appDbContext)
         return new(content, total, pageNumber, pageSize);
     }
 
-    public async Task<ProjectResponseDto?> GetByIdAsync(long id)
+    public async Task<ProjectResponseDto> GetByIdAsync(long id)
     {
-        return await appDbContext.ProjectEntities.AsNoTracking().Where(project => project.Id == id).ToResponseDto().FirstOrDefaultAsync();
+        var project = await appDbContext.ProjectEntities.AsNoTracking().Where(project => project.Id == id)
+            .ToResponseDto().FirstOrDefaultAsync();
+        if (project is null) throw new ProblemDetailsException(ProjectExceptionReasons.NotFound);
+
+        return project;
     }
 
     public async Task<ProjectResponseDto> CreateAsync(ProjectRequestDto projectRequestDto)
     {
-        var project = ProjectMapper.ToEntity(projectRequestDto);
-        var savedProject = await appDbContext.ProjectEntities.AddAsync(project);
-        await appDbContext.SaveChangesAsync();
+        try
+        {
+            var project = ProjectMapper.ToEntity(projectRequestDto);
+            var savedProject = await appDbContext.ProjectEntities.AddAsync(project);
+            await appDbContext.SaveChangesAsync();
 
-        return ProjectMapper.ToResponseDto(savedProject.Entity);
+            return ProjectMapper.ToResponseDto(savedProject.Entity);
+        }
+        catch (DbUpdateException)
+        {
+            throw new ProblemDetailsException(ProjectExceptionReasons.NameNotUnique);
+        }
     }
 }

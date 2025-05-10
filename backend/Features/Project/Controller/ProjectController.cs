@@ -10,37 +10,24 @@ namespace TaskManagement.Backend.Features.Project.Controller;
 public class ProjectController(ProjectService projectService) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAll([FromQuery] SortOptionsDto? sortOptionsDto, [FromQuery] PageOptionsDto? pageOptionsDto
-        )
+    public async Task<ActionResult<PageResponseDto<ProjectResponseDto>>> GetAll(
+        [FromQuery] SortOptionsDto? sortOptionsDto,
+        [FromQuery] PageOptionsDto? pageOptionsDto
+    )
     {
         return Ok(await projectService.GetAllAsync(sortOptionsDto, pageOptionsDto));
     }
 
     [HttpGet("{id:long}")]
-    public async Task<IActionResult> GetById([FromRoute] long id)
+    public async Task<ActionResult<ProjectResponseDto>> GetById([FromRoute] long id)
     {
-        var project = await projectService.GetByIdAsync(id);
-        if (project is null) return NotFound();
-
-        return Ok(project);
+        return Ok(await projectService.GetByIdAsync(id));
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] ProjectRequestDto projectRequestDto)
+    public async Task<ActionResult<ProjectResponseDto>> Create([FromBody] ProjectRequestDto projectRequestDto)
     {
-        try
-        {
-            var newProject = await projectService.CreateAsync(projectRequestDto);
-            return CreatedAtAction(nameof(GetById), new { id = newProject.Id }, newProject);
-        }
-        catch (DbUpdateException)
-        {
-            var problem = new ProblemDetails
-            {
-                Title = "Integrity error.",
-                Detail = "Name must be unique.",
-            };
-            return Conflict(problem);
-        }
+        var newProject = await projectService.CreateAsync(projectRequestDto);
+        return CreatedAtAction(nameof(GetById), new { id = newProject.Id }, newProject);
     }
 }
