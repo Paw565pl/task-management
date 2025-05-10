@@ -1,4 +1,6 @@
-﻿namespace TaskManagement.Backend.Features.Task.Dto;
+using System.ComponentModel.DataAnnotations;
+
+namespace TaskManagement.Backend.Features.Task.Dto;
 
 public record TaskUpdateStatusRequestDto(
-    TaskStatus TaskStatus);
+    [Required] TaskStatus TaskStatus);
