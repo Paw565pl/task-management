@@ -7,10 +7,10 @@ namespace TaskManagement.Backend.Features.Task.Mapper;
 [Mapper]
 public partial class TaskMapper
 {
-    [MapperIgnoreTarget(nameof(TaskEntity.Project))]
+    [MapValue(nameof(TaskEntity.Project), null)]
     public partial TaskEntity ToEntity(TaskCreateRequestDto taskCreateRequestDto);
 
-    [MapperIgnoreTarget(nameof(TaskEntity.Project))]
+    [MapValue(nameof(TaskEntity.Project), null)]
     public partial TaskEntity ToEntity(TaskUpdateRequestDto taskCreateRequestDto);
 
     public partial TaskResponseDto ToResponseDto(TaskEntity taskEntity);
