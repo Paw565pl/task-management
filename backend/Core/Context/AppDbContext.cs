@@ -6,6 +6,6 @@ namespace TaskManagement.Backend.Core.Context;
 
 public class AppDbContext(DbContextOptions<AppDbContext> dbContextOptions) : DbContext(dbContextOptions)
 {
-    public DbSet<ProjectEntity> ProjectEntities => Set<ProjectEntity>();
-    public DbSet<TaskEntity> TaskEntities => Set<TaskEntity>();
+    public DbSet<ProjectEntity> Projects => Set<ProjectEntity>();
+    public DbSet<TaskEntity> Tasks => Set<TaskEntity>();
 }

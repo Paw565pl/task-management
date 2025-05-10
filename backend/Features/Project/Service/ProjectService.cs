@@ -13,7 +13,7 @@ public class ProjectService(AppDbContext appDbContext)
     public async Task<PageResponseDto<ProjectResponseDto>> GetAllAsync(SortOptionsDto? sortOptionsDto,
         PageOptionsDto? pageOptionsDto)
     {
-        var query = appDbContext.ProjectEntities.AsNoTracking();
+        var query = appDbContext.Projects.AsNoTracking();
 
         if (string.IsNullOrWhiteSpace(sortOptionsDto?.SortBy)) query = query.OrderBy(w => w.Id);
         else
@@ -47,7 +47,7 @@ public class ProjectService(AppDbContext appDbContext)
 
     public async Task<ProjectResponseDto> GetByIdAsync(long id)
     {
-        var project = await appDbContext.ProjectEntities.AsNoTracking().Where(project => project.Id == id)
+        var project = await appDbContext.Projects.AsNoTracking().Where(project => project.Id == id)
             .ToResponseDto().FirstOrDefaultAsync();
         if (project is null) throw new ProblemDetailsException(ProjectExceptionReasons.NotFound);
 
@@ -59,7 +59,7 @@ public class ProjectService(AppDbContext appDbContext)
         try
         {
             var project = ProjectMapper.ToEntity(projectRequestDto);
-            var savedProject = await appDbContext.ProjectEntities.AddAsync(project);
+            var savedProject = await appDbContext.Projects.AddAsync(project);
             await appDbContext.SaveChangesAsync();
 
             return ProjectMapper.ToResponseDto(savedProject.Entity);
