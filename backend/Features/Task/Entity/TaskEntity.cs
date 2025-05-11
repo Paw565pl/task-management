@@ -5,7 +5,7 @@ using TaskManagement.Backend.Features.Project.Entity;
 
 namespace TaskManagement.Backend.Features.Task.Entity;
 
-[Table("tasks"), Index(nameof(CreatedAt)), Index(nameof(UpdatedAt))]
+[Table("tasks"), Index(nameof(Status)), Index(nameof(Priority)), Index(nameof(DueDate)), Index(nameof(CreatedAt)), Index(nameof(UpdatedAt))]
 public class TaskEntity
 {
     [Key, Column("id")] public long Id { get; set; }
