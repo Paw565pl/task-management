@@ -2,8 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using TaskManagement.Backend.Core.Context;
 using TaskManagement.Backend.Core.ExceptionHandler;
-using TaskManagement.Backend.Features.Project.Mapper;
 using TaskManagement.Backend.Features.Project.Service;
+using TaskManagement.Backend.Features.Task.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,8 +19,8 @@ builder.Services.AddControllers();
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
-builder.Services.AddSingleton<ProjectMapper>();
 builder.Services.AddScoped<ProjectService>();
+builder.Services.AddScoped<TaskService>();
 
 var app = builder.Build();
 
