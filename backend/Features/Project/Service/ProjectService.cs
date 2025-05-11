@@ -46,7 +46,7 @@ public class ProjectService(AppDbContext appDbContext)
     {
         var project = await appDbContext.Projects.AsNoTracking().Where(p => p.Id == id)
             .ToResponseDto().FirstOrDefaultAsync();
-        if (project is null) throw new ProblemDetailsException(ProjectExceptionReasons.NotFound);
+        if (project is null) throw new ProblemDetailsException(ProjectExceptionReason.NotFound);
 
         return project;
     }
@@ -63,7 +63,7 @@ public class ProjectService(AppDbContext appDbContext)
         }
         catch (DbUpdateException)
         {
-            throw new ProblemDetailsException(ProjectExceptionReasons.NameNotUnique);
+            throw new ProblemDetailsException(ProjectExceptionReason.NameNotUnique);
         }
     }
 }
