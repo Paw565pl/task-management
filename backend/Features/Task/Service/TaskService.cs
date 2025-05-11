@@ -24,9 +24,6 @@ public class TaskService(AppDbContext appDbContext)
         var sortDirection = sortOptionsDto?.SortDirection;
         query = sortField switch
         {
-            "title" => sortDirection == SortDirection.Asc
-                ? query.OrderBy(t => t.Title).ThenBy(t => t.Id)
-                : query.OrderByDescending(t => t.Title).ThenBy(t => t.Id),
             "status" => sortDirection == SortDirection.Asc
                 ? query.OrderBy(t => t.Status).ThenBy(t => t.Id)
                 : query.OrderByDescending(t => t.Status).ThenBy(t => t.Id),
