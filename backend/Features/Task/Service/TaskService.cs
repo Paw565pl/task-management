@@ -12,6 +12,7 @@ namespace TaskManagement.Backend.Features.Task.Service;
 public class TaskService(AppDbContext appDbContext)
 {
     public async Task<PageResponseDto<TaskResponseDto>> GetAllAsync(long projectId, SortOptionsDto? sortOptionsDto,
+        SortOptionsDto? sortOptionsDto,
         PageOptionsDto? pageOptionsDto)
     {
         var doesProjectExist =
@@ -19,6 +20,12 @@ public class TaskService(AppDbContext appDbContext)
         if (!doesProjectExist) throw new ProblemDetailsException(ProjectExceptionReason.NotFound);
 
         var query = appDbContext.Tasks.AsNoTracking();
+
+        if (taskFilterDto?.Status is not null) query = query.Where(t => t.Status == taskFilterDto.Status);
+        if (taskFilterDto?.Priority is not null) query = query.Where(t => t.Priority == taskFilterDto.Priority);
+        if (taskFilterDto?.DueDateAfter is not null) query = query.Where(t => t.DueDate >= taskFilterDto.DueDateAfter);
+        if (taskFilterDto?.DueDateBefore is not null)
+            query = query.Where(t => t.DueDate <= taskFilterDto.DueDateBefore);
 
         var sortField = sortOptionsDto?.SortBy?.ToLower();
         var sortDirection = sortOptionsDto?.SortDirection;

@@ -10,9 +10,10 @@ public class TaskController(TaskService taskService) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<PageResponseDto<TaskResponseDto>>> GetAll([FromRoute] long projectId,
+        [FromQuery] TaskFilterDto? taskFilterDto,
         [FromQuery] SortOptionsDto? sortOptionsDto, [FromQuery] PageOptionsDto? pageOptionsDto)
     {
-        return Ok(await taskService.GetAllAsync(projectId, sortOptionsDto, pageOptionsDto));
+        return Ok(await taskService.GetAllAsync(projectId, taskFilterDto, sortOptionsDto, pageOptionsDto));
     }
 
     [HttpGet("{taskId:long}")]
