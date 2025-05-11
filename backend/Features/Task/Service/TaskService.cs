@@ -11,7 +11,7 @@ namespace TaskManagement.Backend.Features.Task.Service;
 
 public class TaskService(AppDbContext appDbContext)
 {
-    public async Task<PageResponseDto<TaskResponseDto>> GetAllAsync(long projectId, SortOptionsDto? sortOptionsDto,
+    public async Task<PageResponseDto<TaskResponseDto>> GetAllAsync(long projectId, TaskFilterDto? taskFilterDto,
         SortOptionsDto? sortOptionsDto,
         PageOptionsDto? pageOptionsDto)
     {
@@ -37,13 +37,13 @@ public class TaskService(AppDbContext appDbContext)
             "priority" => sortDirection == SortDirection.Asc
                 ? query.OrderBy(t => t.Priority).ThenBy(t => t.Id)
                 : query.OrderByDescending(t => t.Priority).ThenBy(t => t.Id),
-            "due_date" => sortDirection == SortDirection.Asc
+            "duedate" => sortDirection == SortDirection.Asc
                 ? query.OrderBy(t => t.DueDate).ThenBy(t => t.Id)
                 : query.OrderByDescending(t => t.DueDate).ThenBy(t => t.Id),
-            "created_at" => sortDirection == SortDirection.Asc
+            "createdat" => sortDirection == SortDirection.Asc
                 ? query.OrderBy(t => t.CreatedAt).ThenBy(t => t.Id)
                 : query.OrderByDescending(t => t.CreatedAt).ThenBy(t => t.Id),
-            "updated_at" => sortDirection == SortDirection.Asc
+            "updatedat" => sortDirection == SortDirection.Asc
                 ? query.OrderBy(t => t.UpdatedAt).ThenBy(t => t.Id)
                 : query.OrderByDescending(t => t.UpdatedAt).ThenBy(t => t.Id),
             _ => query.OrderBy(t => t.Id)

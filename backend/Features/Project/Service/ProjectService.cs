@@ -22,10 +22,10 @@ public class ProjectService(AppDbContext appDbContext)
             "name" => sortDirection == SortDirection.Asc
                 ? query.OrderBy(p => p.Name).ThenBy(p => p.Id)
                 : query.OrderByDescending(p => p.Name).ThenBy(p => p.Id),
-            "created_at" => sortDirection == SortDirection.Asc
+            "createdat" => sortDirection == SortDirection.Asc
                 ? query.OrderBy(p => p.CreatedAt).ThenBy(p => p.Id)
                 : query.OrderByDescending(p => p.CreatedAt).ThenBy(p => p.Id),
-            "updated_at" => sortDirection == SortDirection.Asc
+            "updatedat" => sortDirection == SortDirection.Asc
                 ? query.OrderBy(p => p.UpdatedAt).ThenBy(p => p.Id)
                 : query.OrderByDescending(p => p.UpdatedAt).ThenBy(p => p.Id),
             _ => query.OrderBy(p => p.Id)
