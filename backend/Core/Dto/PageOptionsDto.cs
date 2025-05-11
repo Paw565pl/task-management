@@ -1,6 +1,8 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace TaskManagement.Backend.Core.Dto;
 
 public record PageOptionsDto(
-    int PageNumber = 1,
-    int PageSize = 20
+    [Range(1, int.MaxValue)] int PageNumber = 1,
+    [Range(1, 100)] int PageSize = 20
 );

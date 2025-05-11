@@ -33,8 +33,8 @@ public class ProjectService(AppDbContext appDbContext)
 
         var total = await query.CountAsync();
 
-        var pageNumber = pageOptionsDto?.PageNumber >= 1 ? pageOptionsDto.PageNumber : 1;
-        var pageSize = pageOptionsDto?.PageSize <= 100 ? pageOptionsDto.PageSize : 20;
+        var pageNumber = pageOptionsDto?.PageNumber ?? 1;
+        var pageSize = pageOptionsDto?.PageSize ?? 20;
         query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
 
         var content = await query.ToResponseDto().ToListAsync();
