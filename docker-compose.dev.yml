@@ -17,5 +17,18 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
 
+  keycloak:
+    build:
+      context: ./keycloak
+      dockerfile: Dockerfile
+    command: ["start-dev", "--import-realm"]
+    restart: always
+    ports:
+      - "9000:9000"
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_HTTP_PORT: 9000
+
 volumes:
   postgres-data:
