@@ -1,4 +1,5 @@
 using Riok.Mapperly.Abstractions;
+using TaskManagement.Backend.Features.Project.Entity;
 using TaskManagement.Backend.Features.Task.Dto;
 using TaskManagement.Backend.Features.Task.Entity;
 
@@ -9,18 +10,16 @@ public static partial class TaskMapper
 {
     [MapperIgnoreTarget(nameof(TaskEntity.Id))]
     [MapperIgnoreTarget(nameof(TaskEntity.ProjectId))]
-    [MapperIgnoreTarget(nameof(TaskEntity.Project))]
     [MapperIgnoreTarget(nameof(TaskEntity.CreatedAt))]
     [MapperIgnoreTarget(nameof(TaskEntity.UpdatedAt))]
     [MapperIgnoreTarget(nameof(TaskEntity.Status))]
-    public static partial TaskEntity ToEntity(TaskCreateRequestDto taskCreateRequestDto);
+    public static partial TaskEntity ToEntity(TaskCreateRequestDto taskCreateRequestDto, ProjectEntity project);
 
     [MapperIgnoreTarget(nameof(TaskEntity.Id))]
     [MapperIgnoreTarget(nameof(TaskEntity.ProjectId))]
-    [MapperIgnoreTarget(nameof(TaskEntity.Project))]
     [MapperIgnoreTarget(nameof(TaskEntity.CreatedAt))]
     [MapperIgnoreTarget(nameof(TaskEntity.UpdatedAt))]
-    public static partial TaskEntity ToEntity(TaskUpdateRequestDto taskCreateRequestDto);
+    public static partial TaskEntity ToEntity(TaskUpdateRequestDto taskCreateRequestDto, ProjectEntity project);
 
     [MapperIgnoreSource(nameof(TaskEntity.ProjectId))]
     [MapperIgnoreSource(nameof(TaskEntity.Project))]

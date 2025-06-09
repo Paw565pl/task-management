@@ -82,8 +82,7 @@ public class TaskService(AppDbContext appDbContext)
         if (project is null) throw new ProblemDetailsException(ProjectExceptionReason.NotFound);
         project.UpdatedAt = DateTime.UtcNow;
 
-        var task = TaskMapper.ToEntity(taskCreateRequestDto);
-        task.Project = project;
+        var task = TaskMapper.ToEntity(taskCreateRequestDto, project);
 
         await appDbContext.Tasks.AddAsync(task);
         await appDbContext.SaveChangesAsync();
@@ -102,9 +101,8 @@ public class TaskService(AppDbContext appDbContext)
         var doesTaskExist = await appDbContext.Tasks.AsNoTracking().AnyAsync(t => t.Id == taskId);
         if (!doesTaskExist) throw new ProblemDetailsException(TaskExceptionReason.NotFound);
 
-        var task = TaskMapper.ToEntity(taskUpdateRequestDto);
+        var task = TaskMapper.ToEntity(taskUpdateRequestDto, project);
         task.Id = taskId;
-        task.Project = project;
 
         await appDbContext.SaveChangesAsync();
 
