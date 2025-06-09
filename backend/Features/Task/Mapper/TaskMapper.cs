@@ -7,12 +7,23 @@ namespace TaskManagement.Backend.Features.Task.Mapper;
 [Mapper]
 public static partial class TaskMapper
 {
-    [MapValue(nameof(TaskEntity.Project), null)]
+    [MapperIgnoreTarget(nameof(TaskEntity.Id))]
+    [MapperIgnoreTarget(nameof(TaskEntity.ProjectId))]
+    [MapperIgnoreTarget(nameof(TaskEntity.Project))]
+    [MapperIgnoreTarget(nameof(TaskEntity.CreatedAt))]
+    [MapperIgnoreTarget(nameof(TaskEntity.UpdatedAt))]
+    [MapperIgnoreTarget(nameof(TaskEntity.Status))]
     public static partial TaskEntity ToEntity(TaskCreateRequestDto taskCreateRequestDto);
 
-    [MapValue(nameof(TaskEntity.Project), null)]
+    [MapperIgnoreTarget(nameof(TaskEntity.Id))]
+    [MapperIgnoreTarget(nameof(TaskEntity.ProjectId))]
+    [MapperIgnoreTarget(nameof(TaskEntity.Project))]
+    [MapperIgnoreTarget(nameof(TaskEntity.CreatedAt))]
+    [MapperIgnoreTarget(nameof(TaskEntity.UpdatedAt))]
     public static partial TaskEntity ToEntity(TaskUpdateRequestDto taskCreateRequestDto);
 
+    [MapperIgnoreSource(nameof(TaskEntity.ProjectId))]
+    [MapperIgnoreSource(nameof(TaskEntity.Project))]
     public static partial TaskResponseDto ToResponseDto(TaskEntity taskEntity);
 
     public static partial IQueryable<TaskResponseDto> ToResponseDto(this IQueryable<TaskEntity> taskEntities);

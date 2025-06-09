@@ -9,6 +9,8 @@ namespace TaskManagement.Backend.Features.Project.Mapper;
 [Mapper]
 public static partial class ProjectMapper
 {
+    [MapperIgnoreTarget(nameof(ProjectEntity.Id))]
+    [MapperIgnoreTarget(nameof(ProjectEntity.UpdatedAt))]
     public static partial ProjectEntity ToEntity(ProjectRequestDto projectRequestDto);
 
     [MapProperty(nameof(ProjectEntity.Tasks), nameof(ProjectResponseDto.TaskCount), Use = nameof(MapTaskCount))]
