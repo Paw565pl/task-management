@@ -49,12 +49,13 @@ public class TaskService(AppDbContext appDbContext)
             _ => query.OrderBy(t => t.Id)
         };
 
-        var total = await query.CountAsync();
-
         var pageNumber = pageOptionsDto?.PageNumber ?? 1;
         var pageSize = pageOptionsDto?.PageSize ?? 20;
-        query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
 
+        var total = await query.CountAsync();
+        if (total == 0) return new([], total, pageNumber, pageSize);
+
+        query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
         var content = await query.ToResponseDto().ToListAsync();
 
         return new(content, total, pageNumber, pageSize);
