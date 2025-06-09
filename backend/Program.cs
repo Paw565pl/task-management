@@ -57,15 +57,19 @@ builder.Services.AddOptions<AuthSettings>()
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
-    if (builder.Environment.IsDevelopment()) options.RequireHttpsMetadata = false;
-
     var authSection = builder.Configuration.GetSection(AuthSettings.Section);
     options.Authority = authSection[nameof(AuthSettings.Authority)];
     options.Audience = authSection[nameof(AuthSettings.Audience)];
-    options.TokenValidationParameters = new TokenValidationParameters()
+
+    if (builder.Environment.IsDevelopment())
     {
-        ValidateAudience = false
-    };
+        options.RequireHttpsMetadata = false;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateAudience = false,
+            ValidateIssuer = false
+        };
+    }
 });
 builder.Services.AddAuthorization();
 
@@ -106,9 +110,15 @@ if (app.Environment.IsDevelopment())
             {
                 var authSection = builder.Configuration.GetSection(AuthSettings.Section);
 
-                flow.AuthorizationUrl = authSection[nameof(AuthSettings.Authority)] + "/protocol/openid-connect/auth";
-                flow.TokenUrl = authSection[nameof(AuthSettings.Authority)] + "/protocol/openid-connect/token";
-                flow.RefreshUrl = authSection[nameof(AuthSettings.Authority)] + "/protocol/openid-connect/token";
+                flow.AuthorizationUrl =
+                    (authSection[nameof(AuthSettings.Authority)] + "/protocol/openid-connect/auth").Replace("keycloak",
+                        "localhost");
+                flow.TokenUrl =
+                    (authSection[nameof(AuthSettings.Authority)] + "/protocol/openid-connect/token").Replace("keycloak",
+                        "localhost");
+                flow.RefreshUrl =
+                    (authSection[nameof(AuthSettings.Authority)] + "/protocol/openid-connect/token").Replace("keycloak",
+                        "localhost");
                 flow.ClientId = "scalar";
                 flow.RedirectUri = "http://localhost:5000/scalar/callback";
                 flow.SelectedScopes = ["openid", "profile", "email"];

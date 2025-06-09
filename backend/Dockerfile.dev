@@ -1,0 +1,15 @@
+﻿FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine
+
+WORKDIR /app
+
+COPY TaskManagement.Backend.csproj .
+
+RUN dotnet restore "TaskManagement.Backend.csproj"
+
+COPY . .
+
+EXPOSE 5000
+
+ENTRYPOINT ["dotnet"]
+
+CMD ["watch", "run"]

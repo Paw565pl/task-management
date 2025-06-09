@@ -30,5 +30,26 @@ services:
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
       KC_HTTP_PORT: 9000
 
+  backend:
+    build:
+      context: backend
+      dockerfile: Dockerfile.dev
+    restart: always
+    ports:
+      - "5000:5000"
+    depends_on:
+      - postgres
+      - keycloak
+    develop:
+      watch:
+        - action: rebuild
+          path: ./backend/TaskManagement.Backend.csproj
+        - action: sync+restart
+          path: ./backend
+          target: /app/
+          ignore:
+            - bin/
+            - obj/
+
 volumes:
   postgres-data:
