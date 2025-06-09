@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskManagement.Backend.Core.Dto;
 using TaskManagement.Backend.Features.Task.Dto;
@@ -5,7 +6,7 @@ using TaskManagement.Backend.Features.Task.Service;
 
 namespace TaskManagement.Backend.Features.Task.Controller;
 
-[ApiController, Route("/ap1/v1/projects/{projectId:long}/tasks")]
+[ApiController, Route("/ap1/v1/projects/{projectId:long}/tasks"), Authorize]
 public class TaskController(TaskService taskService) : ControllerBase
 {
     [HttpGet]

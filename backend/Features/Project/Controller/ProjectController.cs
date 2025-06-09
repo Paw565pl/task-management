@@ -1,12 +1,12 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using TaskManagement.Backend.Core.Dto;
 using TaskManagement.Backend.Features.Project.Dto;
 using TaskManagement.Backend.Features.Project.Service;
 
 namespace TaskManagement.Backend.Features.Project.Controller;
 
-[ApiController, Route("/api/v1/projects")]
+[ApiController, Route("/api/v1/projects"), Authorize]
 public class ProjectController(ProjectService projectService) : ControllerBase
 {
     [HttpGet]

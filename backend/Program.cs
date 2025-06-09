@@ -1,7 +1,11 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Scalar.AspNetCore;
 using TaskManagement.Backend.Core.Context;
 using TaskManagement.Backend.Core.ExceptionHandler;
+using TaskManagement.Backend.Features.Auth.Settings;
 using TaskManagement.Backend.Features.Project.Service;
 using TaskManagement.Backend.Features.Task.Service;
 
@@ -12,12 +16,58 @@ builder.Services.AddDbContextPool<AppDbContext>(optionsBuilder =>
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
-builder.Services.AddHealthChecks();
-builder.Services.AddControllers();
+builder.Services.AddOpenApi(options => options.AddDocumentTransformer((document, _, _) =>
+{
+    document.Components ??= new OpenApiComponents();
 
+    document.Components.SecuritySchemes[JwtBearerDefaults.AuthenticationScheme] = new OpenApiSecurityScheme
+    {
+        Type = SecuritySchemeType.OAuth2,
+        Scheme = JwtBearerDefaults.AuthenticationScheme,
+        BearerFormat = "JWT",
+    };
+
+    document.SecurityRequirements.Add(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = JwtBearerDefaults.AuthenticationScheme
+                }
+            },
+            []
+        }
+    });
+
+    return Task.CompletedTask;
+}));
+
+builder.Services.AddControllers();
+builder.Services.AddHealthChecks();
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
+builder.Services.AddOptions<AuthSettings>()
+    .Bind(builder.Configuration.GetSection(AuthSettings.Section))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+{
+    if (builder.Environment.IsDevelopment()) options.RequireHttpsMetadata = false;
+
+    var authSection = builder.Configuration.GetSection(AuthSettings.Section);
+    options.Authority = authSection[nameof(AuthSettings.Authority)];
+    options.Audience = authSection[nameof(AuthSettings.Audience)];
+    options.TokenValidationParameters = new TokenValidationParameters()
+    {
+        ValidateAudience = false
+    };
+});
+builder.Services.AddAuthorization();
 
 builder.Services.AddScoped<ProjectService>();
 builder.Services.AddScoped<TaskService>();
@@ -41,14 +91,32 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
+app.UseExceptionHandler();
+app.UseAuthentication();
+app.UseAuthorization();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.MapScalarApiReference();
+    app.MapScalarApiReference(options =>
+        options
+            .AddPreferredSecuritySchemes(JwtBearerDefaults.AuthenticationScheme)
+            .AddAuthorizationCodeFlow(JwtBearerDefaults.AuthenticationScheme, flow =>
+            {
+                var authSection = builder.Configuration.GetSection(AuthSettings.Section);
+
+                flow.AuthorizationUrl = authSection[nameof(AuthSettings.Authority)] + "/protocol/openid-connect/auth";
+                flow.TokenUrl = authSection[nameof(AuthSettings.Authority)] + "/protocol/openid-connect/token";
+                flow.RefreshUrl = authSection[nameof(AuthSettings.Authority)] + "/protocol/openid-connect/token";
+                flow.ClientId = "scalar";
+                flow.RedirectUri = "http://localhost:5000/scalar/callback";
+                flow.SelectedScopes = ["openid", "profile", "email"];
+                flow.Pkce = Pkce.Sha256;
+            })
+    );
 }
 
-app.UseExceptionHandler();
 app.MapHealthChecks("/api/v1/health");
 app.MapControllers();
 
