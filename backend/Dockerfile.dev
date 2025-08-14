@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY TaskManagement.Backend.csproj .
 
-RUN dotnet restore "TaskManagement.Backend.csproj"
+RUN dotnet restore
 
 COPY . .
 
