@@ -4,9 +4,9 @@ namespace TaskManagement.Backend.Features.Project.Exception;
 
 public static class ProjectExceptionReason
 {
-    public static ProblemDetailsExceptionReason NotFound =>
+    public static readonly ProblemDetailsExceptionReason NotFound =
         new(StatusCodes.Status404NotFound, "Project with given id does not exist.");
 
-    public static ProblemDetailsExceptionReason NameNotUnique =>
+    public static readonly ProblemDetailsExceptionReason NameNotUnique =
         new(StatusCodes.Status409Conflict, "Name must be unique.");
 }
