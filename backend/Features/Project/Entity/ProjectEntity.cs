@@ -13,9 +13,9 @@ namespace TaskManagement.Backend.Features.Project.Entity;
 [EntityTypeConfiguration(typeof(ProjectEntityConfiguration))]
 public class ProjectEntity
 {
-    [Key] [Column("id")] public long Id { get; set; }
+    [Key][Column("id")] public long Id { get; set; }
 
-    [MaxLength(250)] [Column("name")] public required string Name { get; set; }
+    [MaxLength(250)][Column("name")] public required string Name { get; set; }
 
     [MaxLength(5000)]
     [Column("description")]

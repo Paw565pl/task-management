@@ -15,9 +15,9 @@ namespace TaskManagement.Backend.Features.Task.Entity;
 [EntityTypeConfiguration(typeof(TaskEntityConfiguration))]
 public class TaskEntity
 {
-    [Key] [Column("id")] public long Id { get; set; }
+    [Key][Column("id")] public long Id { get; set; }
 
-    [MaxLength(250)] [Column("title")] public required string Title { get; set; }
+    [MaxLength(250)][Column("title")] public required string Title { get; set; }
 
     [MaxLength(5000)]
     [Column("description")]
