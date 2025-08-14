@@ -10,6 +10,7 @@ namespace TaskManagement.Backend.Features.Project.Mapper;
 public static partial class ProjectMapper
 {
     [MapperIgnoreTarget(nameof(ProjectEntity.Id))]
+    [MapperIgnoreTarget(nameof(ProjectEntity.CreatedAt))]
     [MapperIgnoreTarget(nameof(ProjectEntity.UpdatedAt))]
     public static partial ProjectEntity ToEntity(ProjectRequestDto projectRequestDto);
 
@@ -20,7 +21,7 @@ public static partial class ProjectMapper
 
     public static partial IQueryable<ProjectResponseDto> ToResponseDto(this IQueryable<ProjectEntity> projectEntities);
 
-    private static int MapTaskCount(IList<TaskEntity> tasks) => tasks.Count;
+    private static int MapTaskCount(ICollection<TaskEntity> tasks) => tasks.Count;
 
-    private static int MapCompletedTaskCount(IList<TaskEntity> tasks) => tasks.Count(task => task.Status == TaskStatus.Done);
+    private static int MapCompletedTaskCount(ICollection<TaskEntity> tasks) => tasks.Count(task => task.Status == TaskStatus.Done);
 }
