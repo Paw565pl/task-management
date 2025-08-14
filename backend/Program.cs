@@ -46,8 +46,8 @@ builder.Services.AddOpenApi(options => options.AddDocumentTransformer((document,
 }));
 
 builder.Services.AddControllers();
-builder.Services.AddHealthChecks();
 builder.Services.AddProblemDetails();
+builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 builder.Services.AddOptions<AuthSettings>()
@@ -89,10 +89,6 @@ using (var scope = app.Services.CreateScope())
         dbContext.Database.Migrate();
         Console.WriteLine("Migrations applied successfully.");
     }
-    else
-    {
-        Console.WriteLine("No pending migrations found.");
-    }
 }
 
 app.UseExceptionHandler();
@@ -127,7 +123,7 @@ if (app.Environment.IsDevelopment())
     );
 }
 
-app.MapHealthChecks("/api/v1/health");
+app.MapHealthChecks("/api/_health");
 app.MapControllers();
 
 app.Run();
