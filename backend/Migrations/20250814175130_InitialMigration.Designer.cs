@@ -12,7 +12,7 @@ using TaskManagement.Backend.Core.Context;
 namespace TaskManagement.Backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250814161432_InitialMigration")]
+    [Migration("20250814175130_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -61,10 +61,10 @@ namespace TaskManagement.Backend.Migrations
 
                     b.HasIndex("CreatedAt");
 
-                    b.HasIndex("Name")
-                        .IsUnique();
-
                     b.HasIndex("UpdatedAt");
+
+                    b.HasIndex(new[] { "Name" }, "IX_projects_name")
+                        .IsUnique();
 
                     b.ToTable("projects");
                 });

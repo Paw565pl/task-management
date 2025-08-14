@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using TaskManagement.Backend.Core.Context;
 using TaskManagement.Backend.Core.Dto;
 using TaskManagement.Backend.Core.ExceptionHandler;
@@ -68,7 +69,8 @@ public class ProjectService(AppDbContext appDbContext)
 
             return ProjectMapper.ToResponseDto(savedProject.Entity);
         }
-        catch (DbUpdateException)
+        catch (DbUpdateException ex) when (ex.InnerException is PostgresException { SqlState: "23505" } postgresEx &&
+                                           string.Equals(postgresEx.ConstraintName, ProjectEntity.UniqueNameConstraint))
         {
             throw new ProblemDetailsException(ProjectExceptionReason.NameNotUnique);
         }

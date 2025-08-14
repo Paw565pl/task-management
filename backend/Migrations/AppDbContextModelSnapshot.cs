@@ -58,10 +58,10 @@ namespace TaskManagement.Backend.Migrations
 
                     b.HasIndex("CreatedAt");
 
-                    b.HasIndex("Name")
-                        .IsUnique();
-
                     b.HasIndex("UpdatedAt");
+
+                    b.HasIndex(new[] { "Name" }, "IX_projects_name")
+                        .IsUnique();
 
                     b.ToTable("projects");
                 });

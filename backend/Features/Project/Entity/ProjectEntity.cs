@@ -7,12 +7,14 @@ using TaskManagement.Backend.Features.Task.Entity;
 namespace TaskManagement.Backend.Features.Project.Entity;
 
 [Table("projects")]
-[Index(nameof(Name), IsUnique = true)]
+[Index(nameof(Name), Name = UniqueNameConstraint, IsUnique = true)]
 [Index(nameof(CreatedAt))]
 [Index(nameof(UpdatedAt))]
 [EntityTypeConfiguration(typeof(ProjectEntityConfiguration))]
 public class ProjectEntity
 {
+    public const string UniqueNameConstraint = "IX_projects_name";
+
     [Key][Column("id")] public long Id { get; set; }
 
     [MaxLength(250)][Column("name")] public required string Name { get; set; }
