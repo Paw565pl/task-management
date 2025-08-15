@@ -51,13 +51,13 @@ builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 builder.Services.AddOptions<AuthSettings>()
-    .Bind(builder.Configuration.GetSection(AuthSettings.Section))
+    .Bind(builder.Configuration.GetSection(AuthSettings.SectionName))
     .ValidateDataAnnotations()
     .ValidateOnStart();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
-    var authSection = builder.Configuration.GetSection(AuthSettings.Section);
+    var authSection = builder.Configuration.GetSection(AuthSettings.SectionName);
     options.Authority = authSection[nameof(AuthSettings.Authority)];
     options.Audience = authSection[nameof(AuthSettings.Audience)];
 
@@ -104,7 +104,7 @@ if (app.Environment.IsDevelopment())
             .AddPreferredSecuritySchemes(JwtBearerDefaults.AuthenticationScheme)
             .AddAuthorizationCodeFlow(JwtBearerDefaults.AuthenticationScheme, flow =>
             {
-                var authSection = builder.Configuration.GetSection(AuthSettings.Section);
+                var authSection = builder.Configuration.GetSection(AuthSettings.SectionName);
 
                 flow.AuthorizationUrl =
                     (authSection[nameof(AuthSettings.Authority)] + "/protocol/openid-connect/auth").Replace("keycloak",

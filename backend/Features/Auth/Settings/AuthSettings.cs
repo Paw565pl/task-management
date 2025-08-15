@@ -5,7 +5,7 @@ namespace TaskManagement.Backend.Features.Auth.Settings;
 
 public class AuthSettings
 {
-    public const string Section = "Auth";
+    public const string SectionName = "Auth";
 
     [NotBlank, Url] public string Authority { get; set; } = string.Empty;
 
