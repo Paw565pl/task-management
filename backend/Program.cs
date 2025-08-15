@@ -57,19 +57,23 @@ builder.Services.AddOptions<AuthSettings>()
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
-    var authSection = builder.Configuration.GetSection(AuthSettings.SectionName);
-    options.Authority = authSection[nameof(AuthSettings.Authority)];
-    options.Audience = authSection[nameof(AuthSettings.Audience)];
+    var authSettings = builder.Configuration.GetSection(AuthSettings.SectionName).Get<AuthSettings>();
+
+    options.Authority = authSettings?.Authority;
+    options.Audience = authSettings?.Audience;
+
+    var tokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+    };
 
     if (builder.Environment.IsDevelopment())
     {
         options.RequireHttpsMetadata = false;
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateAudience = false,
-            ValidateIssuer = false
-        };
+        tokenValidationParameters.ValidateIssuer = false;
     }
+
+    options.TokenValidationParameters = tokenValidationParameters;
 });
 builder.Services.AddAuthorization();
 

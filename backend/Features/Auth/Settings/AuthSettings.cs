@@ -7,7 +7,7 @@ public class AuthSettings
 {
     public const string SectionName = "Auth";
 
-    [NotBlank, Url] public string Authority { get; set; } = string.Empty;
+    [NotBlank][Url] public string Authority { get; set; } = string.Empty;
 
     [NotBlank] public string Audience { get; set; } = string.Empty;
 }
