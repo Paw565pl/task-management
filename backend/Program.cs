@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Scalar.AspNetCore;
@@ -108,16 +109,16 @@ if (app.Environment.IsDevelopment())
             .AddPreferredSecuritySchemes(JwtBearerDefaults.AuthenticationScheme)
             .AddAuthorizationCodeFlow(JwtBearerDefaults.AuthenticationScheme, flow =>
             {
-                var authSection = builder.Configuration.GetSection(AuthSettings.SectionName);
+                var authSettings = app.Services.GetRequiredService<IOptions<AuthSettings>>().Value;
 
                 flow.AuthorizationUrl =
-                    (authSection[nameof(AuthSettings.Authority)] + "/protocol/openid-connect/auth").Replace("keycloak",
+                    (authSettings.Authority + "/protocol/openid-connect/auth").Replace("keycloak",
                         "localhost");
                 flow.TokenUrl =
-                    (authSection[nameof(AuthSettings.Authority)] + "/protocol/openid-connect/token").Replace("keycloak",
+                    (authSettings.Authority + "/protocol/openid-connect/token").Replace("keycloak",
                         "localhost");
                 flow.RefreshUrl =
-                    (authSection[nameof(AuthSettings.Authority)] + "/protocol/openid-connect/token").Replace("keycloak",
+                    (authSettings.Authority + "/protocol/openid-connect/token").Replace("keycloak",
                         "localhost");
                 flow.ClientId = "scalar";
                 flow.RedirectUri = "http://localhost:5000/scalar/callback";
