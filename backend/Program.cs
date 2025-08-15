@@ -2,59 +2,28 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 using Scalar.AspNetCore;
 using TaskManagement.Backend.Core.Context;
 using TaskManagement.Backend.Core.ExceptionHandler;
+using TaskManagement.Backend.Features.Auth.OpenApi;
 using TaskManagement.Backend.Features.Auth.Settings;
 using TaskManagement.Backend.Features.Project.Service;
 using TaskManagement.Backend.Features.Task.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContextPool<AppDbContext>(optionsBuilder =>
-    optionsBuilder.UseNpgsql(builder.Configuration.GetConnectionString("Postgres")));
+builder.Services.AddOptions<AuthSettings>()
+    .Bind(builder.Configuration.GetSection(AuthSettings.SectionName))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi(options => options.AddDocumentTransformer((document, _, _) =>
-{
-    document.Components ??= new OpenApiComponents();
-
-    document.Components.SecuritySchemes[JwtBearerDefaults.AuthenticationScheme] = new OpenApiSecurityScheme
-    {
-        Type = SecuritySchemeType.OAuth2,
-        Scheme = JwtBearerDefaults.AuthenticationScheme,
-        BearerFormat = "JWT",
-    };
-
-    document.SecurityRequirements.Add(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = JwtBearerDefaults.AuthenticationScheme
-                }
-            },
-            []
-        }
-    });
-
-    return Task.CompletedTask;
-}));
+builder.Services.AddDbContextPool<AppDbContext>(optionsBuilder => optionsBuilder.UseNpgsql(builder.Configuration.GetConnectionString("Postgres")));
+builder.Services.AddOpenApi(options => options.AddDocumentTransformer<JwtBearerOpenApiDocumentTransformer>());
 
 builder.Services.AddControllers();
 builder.Services.AddProblemDetails();
 builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-
-builder.Services.AddOptions<AuthSettings>()
-    .Bind(builder.Configuration.GetSection(AuthSettings.SectionName))
-    .ValidateDataAnnotations()
-    .ValidateOnStart();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
@@ -100,7 +69,6 @@ app.UseExceptionHandler();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
