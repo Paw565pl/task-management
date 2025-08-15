@@ -1,3 +1,3 @@
 FROM quay.io/keycloak/keycloak:26.3
 
-COPY config.json /opt/keycloak/data/import/
+COPY task-management-realm.json /opt/keycloak/data/import/
