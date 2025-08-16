@@ -6,18 +6,19 @@ using Scalar.AspNetCore;
 using TaskManagement.Backend.Core.Context;
 using TaskManagement.Backend.Core.ExceptionHandler;
 using TaskManagement.Backend.Features.Auth.OpenApi;
-using TaskManagement.Backend.Features.Auth.Settings;
+using TaskManagement.Backend.Features.Auth.Options;
 using TaskManagement.Backend.Features.Project.Service;
 using TaskManagement.Backend.Features.Task.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddOptions<AuthSettings>()
-    .Bind(builder.Configuration.GetSection(AuthSettings.SectionName))
+builder.Services.AddOptions<AuthOptions>()
+    .Bind(builder.Configuration.GetSection(AuthOptions.SectionName))
     .ValidateDataAnnotations()
     .ValidateOnStart();
 
-builder.Services.AddDbContextPool<AppDbContext>(optionsBuilder => optionsBuilder.UseNpgsql(builder.Configuration.GetConnectionString("Postgres")));
+builder.Services.AddDbContextPool<AppDbContext>(optionsBuilder =>
+    optionsBuilder.UseNpgsql(builder.Configuration.GetConnectionString("Postgres")));
 builder.Services.AddOpenApi(options => options.AddDocumentTransformer<JwtBearerOpenApiDocumentTransformer>());
 
 builder.Services.AddControllers();
@@ -27,7 +28,7 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
-    var authSettings = builder.Configuration.GetSection(AuthSettings.SectionName).Get<AuthSettings>();
+    var authSettings = builder.Configuration.GetSection(AuthOptions.SectionName).Get<AuthOptions>();
 
     options.Authority = authSettings?.Authority;
     options.Audience = authSettings?.Audience;

@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using TaskManagement.Backend.Core.Validators;
 
-namespace TaskManagement.Backend.Features.Auth.Settings;
+namespace TaskManagement.Backend.Features.Auth.Options;
 
-public class AuthSettings
+public class AuthOptions
 {
     public const string SectionName = "Auth";
 
