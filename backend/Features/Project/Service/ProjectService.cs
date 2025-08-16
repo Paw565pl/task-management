@@ -63,11 +63,12 @@ public class ProjectService(AppDbContext appDbContext)
     {
         try
         {
-            var project = ProjectMapper.ToEntity(projectCreateRequestDto);
-            var savedProject = await appDbContext.Projects.AddAsync(project, cancellationToken);
+            var project = projectCreateRequestDto.ToEntity();
+
+            await appDbContext.Projects.AddAsync(project, cancellationToken);
             await appDbContext.SaveChangesAsync(cancellationToken);
 
-            return ProjectMapper.ToResponseDto(savedProject.Entity);
+            return project.ToResponseDto();
         }
         catch (DbUpdateException ex) when (ex.InnerException is PostgresException { SqlState: "23505" } postgresEx &&
                                            string.Equals(postgresEx.ConstraintName, ProjectEntity.UniqueNameConstraint))

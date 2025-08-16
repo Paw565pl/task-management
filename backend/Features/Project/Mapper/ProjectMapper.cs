@@ -12,12 +12,12 @@ public static partial class ProjectMapper
     [MapperIgnoreTarget(nameof(ProjectEntity.Id))]
     [MapperIgnoreTarget(nameof(ProjectEntity.CreatedAt))]
     [MapperIgnoreTarget(nameof(ProjectEntity.UpdatedAt))]
-    public static partial ProjectEntity ToEntity(ProjectCreateRequestDto projectCreateRequestDto);
+    public static partial ProjectEntity ToEntity(this ProjectCreateRequestDto projectCreateRequestDto);
 
     [MapProperty(nameof(ProjectEntity.Tasks), nameof(ProjectResponseDto.TaskCount), Use = nameof(MapTaskCount))]
     [MapProperty(nameof(ProjectEntity.Tasks), nameof(ProjectResponseDto.CompletedTaskCount),
         Use = nameof(MapCompletedTaskCount))]
-    public static partial ProjectResponseDto ToResponseDto(ProjectEntity projectEntity);
+    public static partial ProjectResponseDto ToResponseDto(this ProjectEntity projectEntity);
 
     public static partial IQueryable<ProjectResponseDto> ToResponseDto(this IQueryable<ProjectEntity> projectEntities);
 

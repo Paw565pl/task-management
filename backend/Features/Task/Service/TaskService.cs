@@ -87,12 +87,12 @@ public class TaskService(AppDbContext appDbContext)
 
         project.RefreshUpdatedAt();
 
-        var task = TaskMapper.ToEntity(taskCreateRequestDto, project);
+        var task = taskCreateRequestDto.ToEntity(project);
 
-        await appDbContext.Tasks.AddAsync(task);
-        await appDbContext.SaveChangesAsync();
+        await appDbContext.Tasks.AddAsync(task, cancellationToken);
+        await appDbContext.SaveChangesAsync(cancellationToken);
 
-        return TaskMapper.ToResponseDto(task);
+        return task.ToResponseDto();
     }
 
     public async Task<TaskResponseDto> UpdateAsync(long projectId, long taskId,
@@ -116,7 +116,7 @@ public class TaskService(AppDbContext appDbContext)
         task.RefreshUpdatedAt();
         await appDbContext.SaveChangesAsync(cancellationToken);
 
-        return TaskMapper.ToResponseDto(task);
+        return task.ToResponseDto();
     }
 
     public async Task<TaskResponseDto> UpdateStatusAsync(long projectId, long taskId,
@@ -136,7 +136,7 @@ public class TaskService(AppDbContext appDbContext)
         task.RefreshUpdatedAt();
         await appDbContext.SaveChangesAsync(cancellationToken);
 
-        return TaskMapper.ToResponseDto(task);
+        return task.ToResponseDto();
     }
 
     public async System.Threading.Tasks.Task DeleteAsync(long projectId, long taskId, CancellationToken cancellationToken = default)
