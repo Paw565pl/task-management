@@ -13,13 +13,13 @@ namespace TaskManagement.Backend.Features.Project.Service;
 
 public class ProjectService(AppDbContext appDbContext)
 {
-    private static readonly Dictionary<string, Expression<Func<ProjectEntity, object>>> SortColumns =
-        new(StringComparer.OrdinalIgnoreCase)
+    private static readonly IReadOnlyDictionary<string, Expression<Func<ProjectEntity, object>>> SortColumns =
+        new Dictionary<string, Expression<Func<ProjectEntity, object>>>(StringComparer.OrdinalIgnoreCase)
         {
             ["name"] = x => x.Name,
             ["createdat"] = x => x.CreatedAt,
             ["updatedat"] = x => x.UpdatedAt,
-        };
+        }.AsReadOnly();
 
     public async Task<PageResponseDto<ProjectResponseDto>> GetAllAsync(SortOptionsDto? sortOptionsDto = null,
         PageOptionsDto? pageOptionsDto = null)
