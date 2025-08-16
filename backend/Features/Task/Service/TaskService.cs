@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using TaskManagement.Backend.Core.DbContext;
@@ -13,7 +14,7 @@ namespace TaskManagement.Backend.Features.Task.Service;
 
 public class TaskService(AppDbContext appDbContext)
 {
-    private static readonly IReadOnlyDictionary<string, Expression<Func<TaskEntity, object>>> SortColumns =
+    private static readonly ReadOnlyDictionary<string, Expression<Func<TaskEntity, object>>> SortColumns =
         new Dictionary<string, Expression<Func<TaskEntity, object>>>(StringComparer.OrdinalIgnoreCase)
         {
             ["title"] = x => x.Title,

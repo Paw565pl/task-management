@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
@@ -13,7 +14,7 @@ namespace TaskManagement.Backend.Features.Project.Service;
 
 public class ProjectService(AppDbContext appDbContext)
 {
-    private static readonly IReadOnlyDictionary<string, Expression<Func<ProjectEntity, object>>> SortColumns =
+    private static readonly ReadOnlyDictionary<string, Expression<Func<ProjectEntity, object>>> SortColumns =
         new Dictionary<string, Expression<Func<ProjectEntity, object>>>(StringComparer.OrdinalIgnoreCase)
         {
             ["name"] = x => x.Name,
