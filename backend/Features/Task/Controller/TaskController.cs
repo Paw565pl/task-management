@@ -38,7 +38,7 @@ public class TaskController(TaskService taskService) : ControllerBase
         return Ok(await taskService.UpdateAsync(projectId, taskId, taskUpdateRequestDto));
     }
 
-    [HttpPatch("{taskId:long}")]
+    [HttpPatch("{taskId:long}/status")]
     public async Task<ActionResult<TaskResponseDto>> UpdateStatus([FromRoute] long projectId, [FromRoute] long taskId,
         [FromBody] TaskUpdateStatusRequestDto taskUpdateStatusRequestDto)
     {
