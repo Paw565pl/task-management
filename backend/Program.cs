@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Scalar.AspNetCore;
-using TaskManagement.Backend.Core.Context;
+using TaskManagement.Backend.Core.DbContext;
 using TaskManagement.Backend.Core.ExceptionHandler;
 using TaskManagement.Backend.Core.Extensions;
 using TaskManagement.Backend.Features.Auth.OpenApi;

@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
-using TaskManagement.Backend.Core.Context;
+using TaskManagement.Backend.Core.DbContext;
 using TaskManagement.Backend.Core.Dto;
 using TaskManagement.Backend.Core.ExceptionHandler;
 using TaskManagement.Backend.Features.Project.Dto;
