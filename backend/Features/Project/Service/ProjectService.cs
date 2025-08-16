@@ -26,8 +26,8 @@ public class ProjectService(AppDbContext appDbContext)
     {
         var query = appDbContext.Projects.AsNoTracking();
 
-        var pageNumber = pageOptionsDto?.PageNumber ?? 1;
-        var pageSize = pageOptionsDto?.PageSize ?? 20;
+        var pageNumber = pageOptionsDto?.PageNumber ?? PageOptionsDto.DefaultPageNumber;
+        var pageSize = pageOptionsDto?.PageSize ?? PageOptionsDto.DefaultPageSize;
 
         var total = await query.CountAsync();
         if (total == 0) return new([], total, pageNumber, pageSize);
