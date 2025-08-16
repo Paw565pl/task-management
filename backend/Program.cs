@@ -5,10 +5,9 @@ using Microsoft.OpenApi.Models;
 using Scalar.AspNetCore;
 using TaskManagement.Backend.Core.Context;
 using TaskManagement.Backend.Core.ExceptionHandler;
+using TaskManagement.Backend.Core.Extensions;
 using TaskManagement.Backend.Features.Auth.OpenApi;
 using TaskManagement.Backend.Features.Auth.Options;
-using TaskManagement.Backend.Features.Project.Service;
-using TaskManagement.Backend.Features.Task.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,8 +47,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 });
 builder.Services.AddAuthorization();
 
-builder.Services.AddScoped<ProjectService>();
-builder.Services.AddScoped<TaskService>();
+builder.Services.AddAppServices();
 
 var app = builder.Build();
 
