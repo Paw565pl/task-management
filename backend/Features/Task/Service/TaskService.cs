@@ -1,9 +1,11 @@
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using TaskManagement.Backend.Core.Context;
 using TaskManagement.Backend.Core.Dto;
 using TaskManagement.Backend.Core.ExceptionHandler;
 using TaskManagement.Backend.Features.Project.Exception;
 using TaskManagement.Backend.Features.Task.Dto;
+using TaskManagement.Backend.Features.Task.Entity;
 using TaskManagement.Backend.Features.Task.Exception;
 using TaskManagement.Backend.Features.Task.Mapper;
 
@@ -11,15 +13,26 @@ namespace TaskManagement.Backend.Features.Task.Service;
 
 public class TaskService(AppDbContext appDbContext)
 {
+    private static readonly IReadOnlyDictionary<string, Expression<Func<TaskEntity, object>>> SortColumns =
+        new Dictionary<string, Expression<Func<TaskEntity, object>>>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["title"] = x => x.Title,
+            ["status"] = x => x.Status,
+            ["priority"] = x => x.Priority,
+            ["duedate"] = x => x.DueDate,
+            ["createdat"] = x => x.CreatedAt,
+            ["updatedat"] = x => x.UpdatedAt,
+        }.AsReadOnly();
+
     public async Task<PageResponseDto<TaskResponseDto>> GetAllAsync(long projectId, TaskFilterDto? taskFilterDto,
-        SortOptionsDto? sortOptionsDto,
-        PageOptionsDto? pageOptionsDto)
+        SortOptionsDto? sortOptionsDto = null,
+        PageOptionsDto? pageOptionsDto = null)
     {
         var doesProjectExist =
             await appDbContext.Projects.AsNoTracking().AnyAsync(p => p.Id == projectId);
         if (!doesProjectExist) throw new ProblemDetailsException(ProjectExceptionReason.NotFound);
 
-        var query = appDbContext.Tasks.AsNoTracking();
+        var query = appDbContext.Tasks.AsNoTracking().Where(t => t.ProjectId == projectId);
 
         if (taskFilterDto?.Status is not null) query = query.Where(t => t.Status == taskFilterDto.Status);
         if (taskFilterDto?.Priority is not null) query = query.Where(t => t.Priority == taskFilterDto.Priority);
@@ -27,33 +40,23 @@ public class TaskService(AppDbContext appDbContext)
         if (taskFilterDto?.DueDateBefore is not null)
             query = query.Where(t => t.DueDate <= taskFilterDto.DueDateBefore);
 
-        var sortField = sortOptionsDto?.SortBy?.ToLower();
-        var sortDirection = sortOptionsDto?.SortDirection;
-        query = sortField switch
-        {
-            "status" => sortDirection == SortDirection.Asc
-                ? query.OrderBy(t => t.Status).ThenBy(t => t.Id)
-                : query.OrderByDescending(t => t.Status).ThenBy(t => t.Id),
-            "priority" => sortDirection == SortDirection.Asc
-                ? query.OrderBy(t => t.Priority).ThenBy(t => t.Id)
-                : query.OrderByDescending(t => t.Priority).ThenBy(t => t.Id),
-            "duedate" => sortDirection == SortDirection.Asc
-                ? query.OrderBy(t => t.DueDate).ThenBy(t => t.Id)
-                : query.OrderByDescending(t => t.DueDate).ThenBy(t => t.Id),
-            "createdat" => sortDirection == SortDirection.Asc
-                ? query.OrderBy(t => t.CreatedAt).ThenBy(t => t.Id)
-                : query.OrderByDescending(t => t.CreatedAt).ThenBy(t => t.Id),
-            "updatedat" => sortDirection == SortDirection.Asc
-                ? query.OrderBy(t => t.UpdatedAt).ThenBy(t => t.Id)
-                : query.OrderByDescending(t => t.UpdatedAt).ThenBy(t => t.Id),
-            _ => query.OrderBy(t => t.Id)
-        };
-
-        var pageNumber = pageOptionsDto?.PageNumber ?? 1;
-        var pageSize = pageOptionsDto?.PageSize ?? 20;
+        var pageNumber = pageOptionsDto?.PageNumber ?? PageOptionsDto.DefaultPageNumber;
+        var pageSize = pageOptionsDto?.PageSize ?? PageOptionsDto.DefaultPageSize;
 
         var total = await query.CountAsync();
         if (total == 0) return new([], total, pageNumber, pageSize);
+
+        if (SortColumns.TryGetValue(sortOptionsDto?.SortBy ?? string.Empty, out var keySelector))
+        {
+            query =
+                sortOptionsDto?.SortDirection == SortDirection.Asc
+                    ? query.OrderBy(keySelector).ThenBy(p => p.Id)
+                    : query.OrderByDescending(keySelector).ThenBy(p => p.Id);
+        }
+        else
+        {
+            query = query.OrderBy(p => p.Id);
+        }
 
         query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
         var content = await query.ToResponseDto().ToListAsync();
@@ -67,7 +70,7 @@ public class TaskService(AppDbContext appDbContext)
             await appDbContext.Projects.AsNoTracking().AnyAsync(p => p.Id == projectId);
         if (!doesProjectExist) throw new ProblemDetailsException(ProjectExceptionReason.NotFound);
 
-        var task = await appDbContext.Tasks.AsNoTracking().Where(t => t.Id == taskId)
+        var task = await appDbContext.Tasks.AsNoTracking().Where(t => t.Id == taskId && t.ProjectId == projectId)
             .ToResponseDto()
             .FirstOrDefaultAsync();
         if (task is null) throw new ProblemDetailsException(TaskExceptionReason.NotFound);
@@ -80,7 +83,8 @@ public class TaskService(AppDbContext appDbContext)
         var project = await appDbContext.Projects
             .FirstOrDefaultAsync(p => p.Id == projectId);
         if (project is null) throw new ProblemDetailsException(ProjectExceptionReason.NotFound);
-        project.UpdatedAt = DateTime.UtcNow;
+
+        project.RefreshUpdatedAt();
 
         var task = TaskMapper.ToEntity(taskCreateRequestDto, project);
 
@@ -96,14 +100,19 @@ public class TaskService(AppDbContext appDbContext)
         var project = await appDbContext.Projects
             .FirstOrDefaultAsync(p => p.Id == projectId);
         if (project is null) throw new ProblemDetailsException(ProjectExceptionReason.NotFound);
-        project.UpdatedAt = DateTime.UtcNow;
 
-        var doesTaskExist = await appDbContext.Tasks.AsNoTracking().AnyAsync(t => t.Id == taskId);
-        if (!doesTaskExist) throw new ProblemDetailsException(TaskExceptionReason.NotFound);
+        project.RefreshUpdatedAt();
 
-        var task = TaskMapper.ToEntity(taskUpdateRequestDto, project);
-        task.Id = taskId;
+        var task = await appDbContext.Tasks.FirstOrDefaultAsync(t => t.Id == taskId && t.ProjectId == project.Id);
+        if (task is null) throw new ProblemDetailsException(TaskExceptionReason.NotFound);
 
+        task.Title = taskUpdateRequestDto.Title;
+        task.Description = taskUpdateRequestDto.Description;
+        task.Status = taskUpdateRequestDto.Status;
+        task.Priority = taskUpdateRequestDto.Priority;
+        task.DueDate = taskUpdateRequestDto.DueDate;
+
+        task.RefreshUpdatedAt();
         await appDbContext.SaveChangesAsync();
 
         return TaskMapper.ToResponseDto(task);
@@ -115,12 +124,15 @@ public class TaskService(AppDbContext appDbContext)
         var project = await appDbContext.Projects
             .FirstOrDefaultAsync(p => p.Id == projectId);
         if (project is null) throw new ProblemDetailsException(ProjectExceptionReason.NotFound);
-        project.UpdatedAt = DateTime.UtcNow;
 
-        var task = await appDbContext.Tasks.FirstOrDefaultAsync(t => t.Id == taskId);
+        project.RefreshUpdatedAt();
+
+        var task = await appDbContext.Tasks.FirstOrDefaultAsync(t => t.Id == taskId && t.ProjectId == project.Id);
         if (task is null) throw new ProblemDetailsException(TaskExceptionReason.NotFound);
 
         task.Status = taskUpdateStatusRequestDto.Status;
+
+        task.RefreshUpdatedAt();
         await appDbContext.SaveChangesAsync();
 
         return TaskMapper.ToResponseDto(task);
@@ -131,12 +143,14 @@ public class TaskService(AppDbContext appDbContext)
         var project = await appDbContext.Projects
             .FirstOrDefaultAsync(p => p.Id == projectId);
         if (project is null) throw new ProblemDetailsException(ProjectExceptionReason.NotFound);
-        project.UpdatedAt = DateTime.UtcNow;
 
-        var task = await appDbContext.Tasks.FirstOrDefaultAsync(t => t.Id == taskId);
-        if (task is null) throw new ProblemDetailsException(TaskExceptionReason.NotFound);
+        await using var transaction = await appDbContext.Database.BeginTransactionAsync();
+        project.RefreshUpdatedAt();
 
-        appDbContext.Tasks.Remove(task);
+        var deletedCount = await appDbContext.Tasks.Where(t => t.Id == taskId && t.ProjectId == project.Id).ExecuteDeleteAsync();
+        if (deletedCount == 0) throw new ProblemDetailsException(TaskExceptionReason.NotFound);
+
         await appDbContext.SaveChangesAsync();
+        await transaction.CommitAsync();
     }
 }
