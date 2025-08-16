@@ -26,9 +26,9 @@ public class ProjectController(ProjectService projectService) : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<ProjectResponseDto>> Create([FromBody] ProjectRequestDto projectRequestDto, CancellationToken cancellationToken)
+    public async Task<ActionResult<ProjectResponseDto>> Create([FromBody] ProjectCreateRequestDto projectCreateRequestDto, CancellationToken cancellationToken)
     {
-        var newProject = await projectService.CreateAsync(projectRequestDto, cancellationToken);
+        var newProject = await projectService.CreateAsync(projectCreateRequestDto, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = newProject.Id }, newProject);
     }
 }

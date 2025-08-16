@@ -12,7 +12,7 @@ public static partial class ProjectMapper
     [MapperIgnoreTarget(nameof(ProjectEntity.Id))]
     [MapperIgnoreTarget(nameof(ProjectEntity.CreatedAt))]
     [MapperIgnoreTarget(nameof(ProjectEntity.UpdatedAt))]
-    public static partial ProjectEntity ToEntity(ProjectRequestDto projectRequestDto);
+    public static partial ProjectEntity ToEntity(ProjectCreateRequestDto projectCreateRequestDto);
 
     [MapProperty(nameof(ProjectEntity.Tasks), nameof(ProjectResponseDto.TaskCount), Use = nameof(MapTaskCount))]
     [MapProperty(nameof(ProjectEntity.Tasks), nameof(ProjectResponseDto.CompletedTaskCount),

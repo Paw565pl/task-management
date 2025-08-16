@@ -59,11 +59,11 @@ public class ProjectService(AppDbContext appDbContext)
         return project;
     }
 
-    public async Task<ProjectResponseDto> CreateAsync(ProjectRequestDto projectRequestDto, CancellationToken cancellationToken = default)
+    public async Task<ProjectResponseDto> CreateAsync(ProjectCreateRequestDto projectCreateRequestDto, CancellationToken cancellationToken = default)
     {
         try
         {
-            var project = ProjectMapper.ToEntity(projectRequestDto);
+            var project = ProjectMapper.ToEntity(projectCreateRequestDto);
             var savedProject = await appDbContext.Projects.AddAsync(project, cancellationToken);
             await appDbContext.SaveChangesAsync(cancellationToken);
 
