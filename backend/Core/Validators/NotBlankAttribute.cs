@@ -8,7 +8,8 @@ public class NotBlankAttribute : ValidationAttribute
     protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
     {
         // allow optional fields
-        if (value is null) return ValidationResult.Success;
+        if (value is null)
+            return ValidationResult.Success;
 
         if (string.IsNullOrWhiteSpace((string)value))
             return new ValidationResult($"{validationContext.DisplayName} cannot be empty.");

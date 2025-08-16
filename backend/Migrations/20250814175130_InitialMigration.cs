@@ -16,32 +16,73 @@ namespace TaskManagement.Backend.Migrations
                 name: "projects",
                 columns: table => new
                 {
-                    id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    name = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
-                    description = table.Column<string>(type: "character varying(5000)", maxLength: 5000, nullable: true),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP")
+                    id = table
+                        .Column<long>(type: "bigint", nullable: false)
+                        .Annotation(
+                            "Npgsql:ValueGenerationStrategy",
+                            NpgsqlValueGenerationStrategy.IdentityByDefaultColumn
+                        ),
+                    name = table.Column<string>(
+                        type: "character varying(250)",
+                        maxLength: 250,
+                        nullable: false
+                    ),
+                    description = table.Column<string>(
+                        type: "character varying(5000)",
+                        maxLength: 5000,
+                        nullable: true
+                    ),
+                    created_at = table.Column<DateTime>(
+                        type: "timestamp with time zone",
+                        nullable: false,
+                        defaultValueSql: "CURRENT_TIMESTAMP"
+                    ),
+                    updated_at = table.Column<DateTime>(
+                        type: "timestamp with time zone",
+                        nullable: false,
+                        defaultValueSql: "CURRENT_TIMESTAMP"
+                    ),
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_projects", x => x.id);
-                });
+                }
+            );
 
             migrationBuilder.CreateTable(
                 name: "tasks",
                 columns: table => new
                 {
-                    id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    title = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
-                    description = table.Column<string>(type: "character varying(5000)", maxLength: 5000, nullable: true),
+                    id = table
+                        .Column<long>(type: "bigint", nullable: false)
+                        .Annotation(
+                            "Npgsql:ValueGenerationStrategy",
+                            NpgsqlValueGenerationStrategy.IdentityByDefaultColumn
+                        ),
+                    title = table.Column<string>(
+                        type: "character varying(250)",
+                        maxLength: 250,
+                        nullable: false
+                    ),
+                    description = table.Column<string>(
+                        type: "character varying(5000)",
+                        maxLength: 5000,
+                        nullable: true
+                    ),
                     status = table.Column<int>(type: "integer", nullable: false),
                     priority = table.Column<int>(type: "integer", nullable: false),
                     due_date = table.Column<DateOnly>(type: "date", nullable: false),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-                    project_id = table.Column<long>(type: "bigint", nullable: false)
+                    created_at = table.Column<DateTime>(
+                        type: "timestamp with time zone",
+                        nullable: false,
+                        defaultValueSql: "CURRENT_TIMESTAMP"
+                    ),
+                    updated_at = table.Column<DateTime>(
+                        type: "timestamp with time zone",
+                        nullable: false,
+                        defaultValueSql: "CURRENT_TIMESTAMP"
+                    ),
+                    project_id = table.Column<long>(type: "bigint", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -51,64 +92,69 @@ namespace TaskManagement.Backend.Migrations
                         column: x => x.project_id,
                         principalTable: "projects",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
+                        onDelete: ReferentialAction.Cascade
+                    );
+                }
+            );
 
             migrationBuilder.CreateIndex(
                 name: "IX_projects_created_at",
                 table: "projects",
-                column: "created_at");
+                column: "created_at"
+            );
 
             migrationBuilder.CreateIndex(
                 name: "IX_projects_name",
                 table: "projects",
                 column: "name",
-                unique: true);
+                unique: true
+            );
 
             migrationBuilder.CreateIndex(
                 name: "IX_projects_updated_at",
                 table: "projects",
-                column: "updated_at");
+                column: "updated_at"
+            );
 
             migrationBuilder.CreateIndex(
                 name: "IX_tasks_created_at",
                 table: "tasks",
-                column: "created_at");
+                column: "created_at"
+            );
 
             migrationBuilder.CreateIndex(
                 name: "IX_tasks_due_date",
                 table: "tasks",
-                column: "due_date");
+                column: "due_date"
+            );
 
             migrationBuilder.CreateIndex(
                 name: "IX_tasks_priority",
                 table: "tasks",
-                column: "priority");
+                column: "priority"
+            );
 
             migrationBuilder.CreateIndex(
                 name: "IX_tasks_project_id",
                 table: "tasks",
-                column: "project_id");
+                column: "project_id"
+            );
 
-            migrationBuilder.CreateIndex(
-                name: "IX_tasks_status",
-                table: "tasks",
-                column: "status");
+            migrationBuilder.CreateIndex(name: "IX_tasks_status", table: "tasks", column: "status");
 
             migrationBuilder.CreateIndex(
                 name: "IX_tasks_updated_at",
                 table: "tasks",
-                column: "updated_at");
+                column: "updated_at"
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "tasks");
+            migrationBuilder.DropTable(name: "tasks");
 
-            migrationBuilder.DropTable(
-                name: "projects");
+            migrationBuilder.DropTable(name: "projects");
         }
     }
 }

@@ -8,5 +8,5 @@ public enum TaskStatus
     Todo,
     InProgress,
     OnHold,
-    Done
+    Done,
 }

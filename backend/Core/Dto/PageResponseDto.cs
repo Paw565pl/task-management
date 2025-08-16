@@ -1,7 +1,7 @@
 namespace TaskManagement.Backend.Core.Dto;
 
 public record PageResponseDto<T>(
-    IList<T> Content,
+    ICollection<T> Content,
     int TotalItems,
     int PageNumber,
     int PageSize

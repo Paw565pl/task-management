@@ -7,7 +7,12 @@ public class AuthOptions
 {
     public const string SectionName = "Auth";
 
-    [NotBlank][Url] public string Authority { get; set; } = string.Empty;
+    [Url]
+    [NotBlank]
+    [Required]
+    public string Authority { get; set; } = string.Empty;
 
-    [NotBlank] public string Audience { get; set; } = string.Empty;
+    [NotBlank]
+    [Required]
+    public string Audience { get; set; } = string.Empty;
 }

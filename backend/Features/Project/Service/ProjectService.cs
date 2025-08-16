@@ -14,16 +14,23 @@ namespace TaskManagement.Backend.Features.Project.Service;
 
 public class ProjectService(AppDbContext appDbContext)
 {
-    private static readonly ReadOnlyDictionary<string, Expression<Func<ProjectEntity, object>>> SortColumns =
-        new Dictionary<string, Expression<Func<ProjectEntity, object>>>(StringComparer.OrdinalIgnoreCase)
-        {
-            ["name"] = x => x.Name,
-            ["createdat"] = x => x.CreatedAt,
-            ["updatedat"] = x => x.UpdatedAt,
-        }.AsReadOnly();
+    private static readonly ReadOnlyDictionary<
+        string,
+        Expression<Func<ProjectEntity, object>>
+    > SortColumns = new Dictionary<string, Expression<Func<ProjectEntity, object>>>(
+        StringComparer.OrdinalIgnoreCase
+    )
+    {
+        ["name"] = x => x.Name,
+        ["createdat"] = x => x.CreatedAt,
+        ["updatedat"] = x => x.UpdatedAt,
+    }.AsReadOnly();
 
-    public async Task<PageResponseDto<ProjectResponseDto>> GetAllAsync(SortOptionsDto? sortOptionsDto = null,
-        PageOptionsDto? pageOptionsDto = null, CancellationToken cancellationToken = default)
+    public async Task<PageResponseDto<ProjectResponseDto>> GetAllAsync(
+        SortOptionsDto? sortOptionsDto = null,
+        PageOptionsDto? pageOptionsDto = null,
+        CancellationToken cancellationToken = default
+    )
     {
         var query = appDbContext.Projects.AsNoTracking();
 
@@ -31,7 +38,8 @@ public class ProjectService(AppDbContext appDbContext)
         var pageSize = pageOptionsDto?.PageSize ?? PageOptionsDto.DefaultPageSize;
 
         var total = await query.CountAsync(cancellationToken);
-        if (total == 0) return new([], total, pageNumber, pageSize);
+        if (total == 0)
+            return new([], total, pageNumber, pageSize);
 
         if (SortColumns.TryGetValue(sortOptionsDto?.SortBy ?? string.Empty, out var keySelector))
         {
@@ -51,17 +59,26 @@ public class ProjectService(AppDbContext appDbContext)
         return new(content, total, pageNumber, pageSize);
     }
 
-    public async Task<ProjectResponseDto> GetByIdAsync(long id, CancellationToken cancellationToken = default)
+    public async Task<ProjectResponseDto> GetByIdAsync(
+        long id,
+        CancellationToken cancellationToken = default
+    )
     {
-        var project = await appDbContext.Projects.AsNoTracking().Where(p => p.Id == id)
-            .ToResponseDto().FirstOrDefaultAsync(cancellationToken);
-        if (project is null) throw new ProblemDetailsException(ProjectExceptionReason.NotFound);
+        var project = await appDbContext
+            .Projects.AsNoTracking()
+            .Where(p => p.Id == id)
+            .ToResponseDto()
+            .FirstOrDefaultAsync(cancellationToken);
+        if (project is null)
+            throw new ProblemDetailsException(ProjectExceptionReason.NotFound);
 
         return project;
     }
 
-    public async Task<ProjectResponseDto> CreateAsync(ProjectCreateRequestDto projectCreateRequestDto,
-        CancellationToken cancellationToken = default)
+    public async Task<ProjectResponseDto> CreateAsync(
+        ProjectCreateRequestDto projectCreateRequestDto,
+        CancellationToken cancellationToken = default
+    )
     {
         try
         {
@@ -72,9 +89,14 @@ public class ProjectService(AppDbContext appDbContext)
 
             return project.ToResponseDto();
         }
-        catch (DbUpdateException ex) when (ex.InnerException is PostgresException { SqlState: "23505" } postgresEx &&
-                                           string.Equals(postgresEx.ConstraintName, ProjectEntity.UniqueNameConstraint,
-                                               StringComparison.Ordinal))
+        catch (DbUpdateException ex)
+            when (ex.InnerException is PostgresException { SqlState: "23505" } postgresEx
+                && string.Equals(
+                    postgresEx.ConstraintName,
+                    ProjectEntity.UniqueNameConstraint,
+                    StringComparison.Ordinal
+                )
+            )
         {
             throw new ProblemDetailsException(ProjectExceptionReason.NameNotUnique);
         }

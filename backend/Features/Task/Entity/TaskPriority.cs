@@ -7,5 +7,5 @@ public enum TaskPriority
 {
     Low,
     Medium,
-    High
+    High,
 }

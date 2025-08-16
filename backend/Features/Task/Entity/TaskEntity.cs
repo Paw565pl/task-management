@@ -15,23 +15,32 @@ namespace TaskManagement.Backend.Features.Task.Entity;
 [EntityTypeConfiguration(typeof(TaskEntityConfiguration))]
 public class TaskEntity
 {
-    [Key][Column("id")] public long Id { get; set; }
+    [Key]
+    [Column("id")]
+    public long Id { get; set; }
 
-    [MaxLength(250)][Column("title")] public required string Title { get; set; }
+    [MaxLength(250)]
+    [Column("title")]
+    public required string Title { get; set; }
 
     [MaxLength(5000)]
     [Column("description")]
     public string? Description { get; set; }
 
-    [Column("status")] public TaskStatus Status { get; set; } = TaskStatus.Todo;
+    [Column("status")]
+    public TaskStatus Status { get; set; } = TaskStatus.Todo;
 
-    [Column("priority")] public required TaskPriority Priority { get; set; }
+    [Column("priority")]
+    public required TaskPriority Priority { get; set; }
 
-    [Column("due_date")] public required DateOnly DueDate { get; set; }
+    [Column("due_date")]
+    public required DateOnly DueDate { get; set; }
 
-    [Column("created_at")] public DateTime CreatedAt { get; private init; }
+    [Column("created_at")]
+    public DateTime CreatedAt { get; private init; }
 
-    [Column("updated_at")] public DateTime UpdatedAt { get; private set; }
+    [Column("updated_at")]
+    public DateTime UpdatedAt { get; private set; }
 
     [ForeignKey(nameof(Project))]
     [Column("project_id")]
@@ -48,9 +57,13 @@ internal sealed class TaskEntityConfiguration : IEntityTypeConfiguration<TaskEnt
 {
     public void Configure(EntityTypeBuilder<TaskEntity> builder)
     {
-        builder.Property(x => x.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP").ValueGeneratedOnAdd();
-        builder.Property(x => x.UpdatedAt)
-            .HasDefaultValueSql("CURRENT_TIMESTAMP").ValueGeneratedOnAdd(
-            );
+        builder
+            .Property(x => x.CreatedAt)
+            .HasDefaultValueSql("CURRENT_TIMESTAMP")
+            .ValueGeneratedOnAdd();
+        builder
+            .Property(x => x.UpdatedAt)
+            .HasDefaultValueSql("CURRENT_TIMESTAMP")
+            .ValueGeneratedOnAdd();
     }
 }

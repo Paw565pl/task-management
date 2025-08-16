@@ -12,16 +12,28 @@ public static partial class ProjectMapper
     [MapperIgnoreTarget(nameof(ProjectEntity.Id))]
     [MapperIgnoreTarget(nameof(ProjectEntity.CreatedAt))]
     [MapperIgnoreTarget(nameof(ProjectEntity.UpdatedAt))]
-    public static partial ProjectEntity ToEntity(this ProjectCreateRequestDto projectCreateRequestDto);
+    public static partial ProjectEntity ToEntity(
+        this ProjectCreateRequestDto projectCreateRequestDto
+    );
 
-    [MapProperty(nameof(ProjectEntity.Tasks), nameof(ProjectResponseDto.TaskCount), Use = nameof(MapTaskCount))]
-    [MapProperty(nameof(ProjectEntity.Tasks), nameof(ProjectResponseDto.CompletedTaskCount),
-        Use = nameof(MapCompletedTaskCount))]
+    [MapProperty(
+        nameof(ProjectEntity.Tasks),
+        nameof(ProjectResponseDto.TaskCount),
+        Use = nameof(MapTaskCount)
+    )]
+    [MapProperty(
+        nameof(ProjectEntity.Tasks),
+        nameof(ProjectResponseDto.CompletedTaskCount),
+        Use = nameof(MapCompletedTaskCount)
+    )]
     public static partial ProjectResponseDto ToResponseDto(this ProjectEntity projectEntity);
 
-    public static partial IQueryable<ProjectResponseDto> ToResponseDto(this IQueryable<ProjectEntity> projectEntities);
+    public static partial IQueryable<ProjectResponseDto> ToResponseDto(
+        this IQueryable<ProjectEntity> projectEntities
+    );
 
     private static int MapTaskCount(ICollection<TaskEntity> tasks) => tasks.Count;
 
-    private static int MapCompletedTaskCount(ICollection<TaskEntity> tasks) => tasks.Count(task => task.Status == TaskStatus.Done);
+    private static int MapCompletedTaskCount(ICollection<TaskEntity> tasks) =>
+        tasks.Count(task => task.Status == TaskStatus.Done);
 }

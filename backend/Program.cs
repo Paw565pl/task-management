@@ -11,42 +11,50 @@ using TaskManagement.Backend.Features.Auth.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddOptions<AuthOptions>()
+builder
+    .Services.AddOptions<AuthOptions>()
     .Bind(builder.Configuration.GetSection(AuthOptions.SectionName))
     .ValidateDataAnnotations()
     .ValidateOnStart();
 
 builder.Services.AddDbContextPool<AppDbContext>(optionsBuilder =>
-    optionsBuilder.UseNpgsql(builder.Configuration.GetConnectionString("Postgres")));
-builder.Services.AddOpenApi(options => options.AddDocumentTransformer<JwtBearerOpenApiDocumentTransformer>());
+    optionsBuilder.UseNpgsql(builder.Configuration.GetConnectionString("Postgres"))
+);
+builder.Services.AddOpenApi(options =>
+    options.AddDocumentTransformer<JwtBearerOpenApiDocumentTransformer>()
+);
 
 builder.Services.AddControllers();
 builder.Services.AddProblemDetails();
 builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
-{
-    var authSettings = builder.Configuration.GetSection(AuthOptions.SectionName).Get<AuthOptions>();
-
-    options.Authority = authSettings?.Authority;
-    options.Audience = authSettings?.Audience;
-
-    var tokenValidationParameters = new TokenValidationParameters
+builder
+    .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
     {
-        ValidateIssuerSigningKey = true,
-    };
+        var authSettings = builder
+            .Configuration.GetSection(AuthOptions.SectionName)
+            .Get<AuthOptions>();
 
-    if (builder.Environment.IsDevelopment())
-    {
-        options.RequireHttpsMetadata = false;
+        options.Authority = authSettings?.Authority;
+        options.Audience = authSettings?.Audience;
+
+        var tokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+        };
+
+        if (builder.Environment.IsDevelopment())
+        {
+            options.RequireHttpsMetadata = false;
 #pragma warning disable CA5404
-        tokenValidationParameters.ValidateIssuer = false;
+            tokenValidationParameters.ValidateIssuer = false;
 #pragma warning restore CA5404
-    }
+        }
 
-    options.TokenValidationParameters = tokenValidationParameters;
-});
+        options.TokenValidationParameters = tokenValidationParameters;
+    });
 builder.Services.AddAuthorization();
 
 builder.Services.AddAppServices();
@@ -76,13 +84,16 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference(options =>
         options
             .AddPreferredSecuritySchemes(nameof(SecuritySchemeType.OAuth2))
-            .AddAuthorizationCodeFlow(nameof(SecuritySchemeType.OAuth2), flow =>
-            {
-                flow.ClientId = "scalar";
-                flow.RedirectUri = "http://localhost:5000/scalar/callback";
-                flow.SelectedScopes = ["openid", "profile", "email"];
-                flow.Pkce = Pkce.Sha256;
-            })
+            .AddAuthorizationCodeFlow(
+                nameof(SecuritySchemeType.OAuth2),
+                flow =>
+                {
+                    flow.ClientId = "scalar";
+                    flow.RedirectUri = "http://localhost:5000/scalar/callback";
+                    flow.SelectedScopes = ["openid", "profile", "email"];
+                    flow.Pkce = Pkce.Sha256;
+                }
+            )
     );
 }
 

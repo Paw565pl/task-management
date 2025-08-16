@@ -11,34 +11,39 @@ namespace TaskManagement.Backend.Features.Auth.OpenApi;
 public class JwtBearerOpenApiDocumentTransformer(
     IApiDescriptionGroupCollectionProvider apiDescriptionGroupCollectionProvider,
     IOptions<AuthOptions> authSettings,
-    IWebHostEnvironment environment) : IOpenApiDocumentTransformer
+    IWebHostEnvironment environment
+) : IOpenApiDocumentTransformer
 {
-    public System.Threading.Tasks.Task TransformAsync(OpenApiDocument document,
+    public System.Threading.Tasks.Task TransformAsync(
+        OpenApiDocument document,
         OpenApiDocumentTransformerContext context,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
-        var authorityUrl = environment.IsDevelopment() ? authSettings.Value.Authority
-                .Replace("keycloak", "localhost") : authSettings.Value.Authority;
+        var authorityUrl = environment.IsDevelopment()
+            ? authSettings.Value.Authority.Replace("keycloak", "localhost")
+            : authSettings.Value.Authority;
         var authorizationUrl = authorityUrl + "/protocol/openid-connect/auth";
         var tokenUrl = authorityUrl + "/protocol/openid-connect/token";
         var refreshUrl = authorityUrl + "/protocol/openid-connect/token";
 
         document.Components ??= new OpenApiComponents();
-        document.Components.SecuritySchemes[nameof(SecuritySchemeType.OAuth2)] = new OpenApiSecurityScheme
-        {
-            Type = SecuritySchemeType.OAuth2,
-            Scheme = JwtBearerDefaults.AuthenticationScheme,
-            BearerFormat = "JWT",
-            Flows = new OpenApiOAuthFlows
+        document.Components.SecuritySchemes[nameof(SecuritySchemeType.OAuth2)] =
+            new OpenApiSecurityScheme
             {
-                AuthorizationCode = new OpenApiOAuthFlow
+                Type = SecuritySchemeType.OAuth2,
+                Scheme = JwtBearerDefaults.AuthenticationScheme,
+                BearerFormat = "JWT",
+                Flows = new OpenApiOAuthFlows
                 {
-                    AuthorizationUrl = new Uri(authorizationUrl),
-                    TokenUrl = new Uri(tokenUrl),
-                    RefreshUrl = new Uri(refreshUrl),
-                }
-            }
-        };
+                    AuthorizationCode = new OpenApiOAuthFlow
+                    {
+                        AuthorizationUrl = new Uri(authorizationUrl),
+                        TokenUrl = new Uri(tokenUrl),
+                        RefreshUrl = new Uri(refreshUrl),
+                    },
+                },
+            };
 
         var securedEndpoints = new HashSet<(string path, string method)>();
         var securityRequirement = new OpenApiSecurityRequirement
@@ -49,27 +54,34 @@ public class JwtBearerOpenApiDocumentTransformer(
                     Reference = new OpenApiReference
                     {
                         Type = ReferenceType.SecurityScheme,
-                        Id = JwtBearerDefaults.AuthenticationScheme
-                    }
+                        Id = JwtBearerDefaults.AuthenticationScheme,
+                    },
                 },
                 []
-            }
+            },
         };
 
-        // construct securedEndpoints 
-        foreach (var apiDescriptionGroup in apiDescriptionGroupCollectionProvider.ApiDescriptionGroups.Items)
+        // construct securedEndpoints
+        foreach (
+            var apiDescriptionGroup in apiDescriptionGroupCollectionProvider
+                .ApiDescriptionGroups
+                .Items
+        )
         {
             foreach (var apiDescription in apiDescriptionGroup.Items)
             {
-                if (string.IsNullOrEmpty(apiDescription.RelativePath) ||
-                    string.IsNullOrEmpty(apiDescription.HttpMethod))
+                if (
+                    string.IsNullOrEmpty(apiDescription.RelativePath)
+                    || string.IsNullOrEmpty(apiDescription.HttpMethod)
+                )
                     continue;
 
                 var metadata = apiDescription.ActionDescriptor.EndpointMetadata;
                 var hasAuthorizeAttribute = metadata.OfType<AuthorizeAttribute>().Any();
                 var hasAllowAnonymousAttribute = metadata.OfType<AllowAnonymousAttribute>().Any();
 
-                if (!hasAuthorizeAttribute || hasAllowAnonymousAttribute) continue;
+                if (!hasAuthorizeAttribute || hasAllowAnonymousAttribute)
+                    continue;
 
                 var path = apiDescription.RelativePath.Trim('/');
                 var method = apiDescription.HttpMethod;

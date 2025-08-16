@@ -4,5 +4,4 @@ using TaskStatus = TaskManagement.Backend.Features.Task.Entity.TaskStatus;
 
 namespace TaskManagement.Backend.Features.Task.Dto;
 
-public record TaskUpdateStatusRequestDto(
-    [Required][property: BindRequired] TaskStatus Status);
+public record TaskUpdateStatusRequestDto([Required] [property: BindRequired] TaskStatus Status);
