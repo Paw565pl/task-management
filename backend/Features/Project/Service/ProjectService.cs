@@ -22,14 +22,14 @@ public class ProjectService(AppDbContext appDbContext)
         }.AsReadOnly();
 
     public async Task<PageResponseDto<ProjectResponseDto>> GetAllAsync(SortOptionsDto? sortOptionsDto = null,
-        PageOptionsDto? pageOptionsDto = null)
+        PageOptionsDto? pageOptionsDto = null, CancellationToken cancellationToken = default)
     {
         var query = appDbContext.Projects.AsNoTracking();
 
         var pageNumber = pageOptionsDto?.PageNumber ?? PageOptionsDto.DefaultPageNumber;
         var pageSize = pageOptionsDto?.PageSize ?? PageOptionsDto.DefaultPageSize;
 
-        var total = await query.CountAsync();
+        var total = await query.CountAsync(cancellationToken);
         if (total == 0) return new([], total, pageNumber, pageSize);
 
         if (SortColumns.TryGetValue(sortOptionsDto?.SortBy ?? string.Empty, out var keySelector))
@@ -45,27 +45,27 @@ public class ProjectService(AppDbContext appDbContext)
         }
 
         query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
-        var content = await query.ToResponseDto().ToListAsync();
+        var content = await query.ToResponseDto().ToListAsync(cancellationToken);
 
         return new(content, total, pageNumber, pageSize);
     }
 
-    public async Task<ProjectResponseDto> GetByIdAsync(long id)
+    public async Task<ProjectResponseDto> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
         var project = await appDbContext.Projects.AsNoTracking().Where(p => p.Id == id)
-            .ToResponseDto().FirstOrDefaultAsync();
+            .ToResponseDto().FirstOrDefaultAsync(cancellationToken);
         if (project is null) throw new ProblemDetailsException(ProjectExceptionReason.NotFound);
 
         return project;
     }
 
-    public async Task<ProjectResponseDto> CreateAsync(ProjectRequestDto projectRequestDto)
+    public async Task<ProjectResponseDto> CreateAsync(ProjectRequestDto projectRequestDto, CancellationToken cancellationToken = default)
     {
         try
         {
             var project = ProjectMapper.ToEntity(projectRequestDto);
-            var savedProject = await appDbContext.Projects.AddAsync(project);
-            await appDbContext.SaveChangesAsync();
+            var savedProject = await appDbContext.Projects.AddAsync(project, cancellationToken);
+            await appDbContext.SaveChangesAsync(cancellationToken);
 
             return ProjectMapper.ToResponseDto(savedProject.Entity);
         }

@@ -26,10 +26,11 @@ public class TaskService(AppDbContext appDbContext)
 
     public async Task<PageResponseDto<TaskResponseDto>> GetAllAsync(long projectId, TaskFilterDto? taskFilterDto,
         SortOptionsDto? sortOptionsDto = null,
-        PageOptionsDto? pageOptionsDto = null)
+        PageOptionsDto? pageOptionsDto = null,
+        CancellationToken cancellationToken = default)
     {
         var doesProjectExist =
-            await appDbContext.Projects.AsNoTracking().AnyAsync(p => p.Id == projectId);
+            await appDbContext.Projects.AsNoTracking().AnyAsync(p => p.Id == projectId, cancellationToken);
         if (!doesProjectExist) throw new ProblemDetailsException(ProjectExceptionReason.NotFound);
 
         var query = appDbContext.Tasks.AsNoTracking().Where(t => t.ProjectId == projectId);
@@ -43,7 +44,7 @@ public class TaskService(AppDbContext appDbContext)
         var pageNumber = pageOptionsDto?.PageNumber ?? PageOptionsDto.DefaultPageNumber;
         var pageSize = pageOptionsDto?.PageSize ?? PageOptionsDto.DefaultPageSize;
 
-        var total = await query.CountAsync();
+        var total = await query.CountAsync(cancellationToken);
         if (total == 0) return new([], total, pageNumber, pageSize);
 
         if (SortColumns.TryGetValue(sortOptionsDto?.SortBy ?? string.Empty, out var keySelector))
@@ -59,29 +60,29 @@ public class TaskService(AppDbContext appDbContext)
         }
 
         query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
-        var content = await query.ToResponseDto().ToListAsync();
+        var content = await query.ToResponseDto().ToListAsync(cancellationToken);
 
         return new(content, total, pageNumber, pageSize);
     }
 
-    public async Task<TaskResponseDto> GetByIdAsync(long projectId, long taskId)
+    public async Task<TaskResponseDto> GetByIdAsync(long projectId, long taskId, CancellationToken cancellationToken = default)
     {
         var doesProjectExist =
-            await appDbContext.Projects.AsNoTracking().AnyAsync(p => p.Id == projectId);
+            await appDbContext.Projects.AsNoTracking().AnyAsync(p => p.Id == projectId, cancellationToken);
         if (!doesProjectExist) throw new ProblemDetailsException(ProjectExceptionReason.NotFound);
 
         var task = await appDbContext.Tasks.AsNoTracking().Where(t => t.Id == taskId && t.ProjectId == projectId)
             .ToResponseDto()
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(cancellationToken);
         if (task is null) throw new ProblemDetailsException(TaskExceptionReason.NotFound);
 
         return task;
     }
 
-    public async Task<TaskResponseDto> CreateAsync(long projectId, TaskCreateRequestDto taskCreateRequestDto)
+    public async Task<TaskResponseDto> CreateAsync(long projectId, TaskCreateRequestDto taskCreateRequestDto, CancellationToken cancellationToken = default)
     {
         var project = await appDbContext.Projects
-            .FirstOrDefaultAsync(p => p.Id == projectId);
+            .FirstOrDefaultAsync(p => p.Id == projectId, cancellationToken);
         if (project is null) throw new ProblemDetailsException(ProjectExceptionReason.NotFound);
 
         project.RefreshUpdatedAt();
@@ -95,15 +96,15 @@ public class TaskService(AppDbContext appDbContext)
     }
 
     public async Task<TaskResponseDto> UpdateAsync(long projectId, long taskId,
-        TaskUpdateRequestDto taskUpdateRequestDto)
+        TaskUpdateRequestDto taskUpdateRequestDto, CancellationToken cancellationToken = default)
     {
         var project = await appDbContext.Projects
-            .FirstOrDefaultAsync(p => p.Id == projectId);
+            .FirstOrDefaultAsync(p => p.Id == projectId, cancellationToken);
         if (project is null) throw new ProblemDetailsException(ProjectExceptionReason.NotFound);
 
         project.RefreshUpdatedAt();
 
-        var task = await appDbContext.Tasks.FirstOrDefaultAsync(t => t.Id == taskId && t.ProjectId == project.Id);
+        var task = await appDbContext.Tasks.FirstOrDefaultAsync(t => t.Id == taskId && t.ProjectId == project.Id, cancellationToken);
         if (task is null) throw new ProblemDetailsException(TaskExceptionReason.NotFound);
 
         task.Title = taskUpdateRequestDto.Title;
@@ -113,44 +114,44 @@ public class TaskService(AppDbContext appDbContext)
         task.DueDate = taskUpdateRequestDto.DueDate;
 
         task.RefreshUpdatedAt();
-        await appDbContext.SaveChangesAsync();
+        await appDbContext.SaveChangesAsync(cancellationToken);
 
         return TaskMapper.ToResponseDto(task);
     }
 
     public async Task<TaskResponseDto> UpdateStatusAsync(long projectId, long taskId,
-        TaskUpdateStatusRequestDto taskUpdateStatusRequestDto)
+        TaskUpdateStatusRequestDto taskUpdateStatusRequestDto, CancellationToken cancellationToken = default)
     {
         var project = await appDbContext.Projects
-            .FirstOrDefaultAsync(p => p.Id == projectId);
+            .FirstOrDefaultAsync(p => p.Id == projectId, cancellationToken);
         if (project is null) throw new ProblemDetailsException(ProjectExceptionReason.NotFound);
 
         project.RefreshUpdatedAt();
 
-        var task = await appDbContext.Tasks.FirstOrDefaultAsync(t => t.Id == taskId && t.ProjectId == project.Id);
+        var task = await appDbContext.Tasks.FirstOrDefaultAsync(t => t.Id == taskId && t.ProjectId == project.Id, cancellationToken);
         if (task is null) throw new ProblemDetailsException(TaskExceptionReason.NotFound);
 
         task.Status = taskUpdateStatusRequestDto.Status;
 
         task.RefreshUpdatedAt();
-        await appDbContext.SaveChangesAsync();
+        await appDbContext.SaveChangesAsync(cancellationToken);
 
         return TaskMapper.ToResponseDto(task);
     }
 
-    public async System.Threading.Tasks.Task DeleteAsync(long projectId, long taskId)
+    public async System.Threading.Tasks.Task DeleteAsync(long projectId, long taskId, CancellationToken cancellationToken = default)
     {
         var project = await appDbContext.Projects
-            .FirstOrDefaultAsync(p => p.Id == projectId);
+            .FirstOrDefaultAsync(p => p.Id == projectId, cancellationToken);
         if (project is null) throw new ProblemDetailsException(ProjectExceptionReason.NotFound);
 
-        await using var transaction = await appDbContext.Database.BeginTransactionAsync();
+        await using var transaction = await appDbContext.Database.BeginTransactionAsync(cancellationToken);
         project.RefreshUpdatedAt();
 
-        var deletedCount = await appDbContext.Tasks.Where(t => t.Id == taskId && t.ProjectId == project.Id).ExecuteDeleteAsync();
+        var deletedCount = await appDbContext.Tasks.Where(t => t.Id == taskId && t.ProjectId == project.Id).ExecuteDeleteAsync(cancellationToken);
         if (deletedCount == 0) throw new ProblemDetailsException(TaskExceptionReason.NotFound);
 
-        await appDbContext.SaveChangesAsync();
-        await transaction.CommitAsync();
+        await appDbContext.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
     }
 }

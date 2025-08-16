@@ -12,22 +12,23 @@ public class ProjectController(ProjectService projectService) : ControllerBase
     [HttpGet]
     public async Task<ActionResult<PageResponseDto<ProjectResponseDto>>> GetAll(
         [FromQuery] SortOptionsDto? sortOptionsDto,
-        [FromQuery] PageOptionsDto? pageOptionsDto
+        [FromQuery] PageOptionsDto? pageOptionsDto,
+        CancellationToken cancellationToken
     )
     {
-        return Ok(await projectService.GetAllAsync(sortOptionsDto, pageOptionsDto));
+        return Ok(await projectService.GetAllAsync(sortOptionsDto, pageOptionsDto, cancellationToken));
     }
 
     [HttpGet("{id:long}")]
-    public async Task<ActionResult<ProjectResponseDto>> GetById([FromRoute] long id)
+    public async Task<ActionResult<ProjectResponseDto>> GetById([FromRoute] long id, CancellationToken cancellationToken)
     {
-        return Ok(await projectService.GetByIdAsync(id));
+        return Ok(await projectService.GetByIdAsync(id, cancellationToken));
     }
 
     [HttpPost]
-    public async Task<ActionResult<ProjectResponseDto>> Create([FromBody] ProjectRequestDto projectRequestDto)
+    public async Task<ActionResult<ProjectResponseDto>> Create([FromBody] ProjectRequestDto projectRequestDto, CancellationToken cancellationToken)
     {
-        var newProject = await projectService.CreateAsync(projectRequestDto);
+        var newProject = await projectService.CreateAsync(projectRequestDto, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = newProject.Id }, newProject);
     }
 }
