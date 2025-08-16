@@ -60,7 +60,8 @@ public class ProjectService(AppDbContext appDbContext)
         return project;
     }
 
-    public async Task<ProjectResponseDto> CreateAsync(ProjectCreateRequestDto projectCreateRequestDto, CancellationToken cancellationToken = default)
+    public async Task<ProjectResponseDto> CreateAsync(ProjectCreateRequestDto projectCreateRequestDto,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -72,7 +73,8 @@ public class ProjectService(AppDbContext appDbContext)
             return project.ToResponseDto();
         }
         catch (DbUpdateException ex) when (ex.InnerException is PostgresException { SqlState: "23505" } postgresEx &&
-                                           string.Equals(postgresEx.ConstraintName, ProjectEntity.UniqueNameConstraint))
+                                           string.Equals(postgresEx.ConstraintName, ProjectEntity.UniqueNameConstraint,
+                                               StringComparison.Ordinal))
         {
             throw new ProblemDetailsException(ProjectExceptionReason.NameNotUnique);
         }

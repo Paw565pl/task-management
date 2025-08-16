@@ -40,7 +40,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     if (builder.Environment.IsDevelopment())
     {
         options.RequireHttpsMetadata = false;
+#pragma warning disable CA5404
         tokenValidationParameters.ValidateIssuer = false;
+#pragma warning restore CA5404
     }
 
     options.TokenValidationParameters = tokenValidationParameters;
@@ -55,11 +57,11 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-    var pendingMigrations = dbContext.Database.GetPendingMigrations();
+    var pendingMigrations = await dbContext.Database.GetPendingMigrationsAsync();
     if (pendingMigrations.Any())
     {
         Console.WriteLine("Applying pending migrations...");
-        dbContext.Database.Migrate();
+        await dbContext.Database.MigrateAsync();
         Console.WriteLine("Migrations applied successfully.");
     }
 }
@@ -87,4 +89,4 @@ if (app.Environment.IsDevelopment())
 app.MapHealthChecks("/api/_health");
 app.MapControllers();
 
-app.Run();
+await app.RunAsync();

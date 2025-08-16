@@ -44,7 +44,7 @@ public class TaskEntity
     public void RefreshUpdatedAt() => UpdatedAt = DateTime.UtcNow;
 }
 
-internal class TaskEntityConfiguration : IEntityTypeConfiguration<TaskEntity>
+internal sealed class TaskEntityConfiguration : IEntityTypeConfiguration<TaskEntity>
 {
     public void Configure(EntityTypeBuilder<TaskEntity> builder)
     {

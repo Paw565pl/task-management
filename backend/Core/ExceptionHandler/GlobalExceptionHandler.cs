@@ -4,39 +4,47 @@ using Microsoft.AspNetCore.WebUtilities;
 
 namespace TaskManagement.Backend.Core.ExceptionHandler;
 
-public class GlobalExceptionHandler(
+public partial class GlobalExceptionHandler(
     IProblemDetailsService problemDetailsService,
     ILogger<GlobalExceptionHandler> logger) : IExceptionHandler
 {
+    [LoggerMessage(Level = LogLevel.Error,
+        Message = "Unhandled exception while processing {method} {path} - {traceIdentifier}")]
+    private static partial void LogUnhandledException(
+        ILogger logger,
+        Exception exception,
+        string method,
+        string path,
+        string traceIdentifier
+    );
+
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception,
         CancellationToken cancellationToken)
     {
-        ProblemDetails problemDetails;
+        var problemDetails = new ProblemDetails();
 
         if (exception is ProblemDetailsException problemDetailsException)
-            problemDetails = new ProblemDetails
-            {
-                Status = problemDetailsException.StatusCode,
-                Title = ReasonPhrases.GetReasonPhrase(problemDetailsException.StatusCode),
-                Detail = problemDetailsException.Message,
-            };
+        {
+            problemDetails.Status = problemDetailsException.StatusCode;
+            problemDetails.Title = ReasonPhrases.GetReasonPhrase(problemDetailsException.StatusCode);
+            problemDetails.Detail = problemDetailsException.Message;
+        }
         else
         {
-            logger.LogError("unexpected error has occurred: {}", exception.StackTrace);
+            LogUnhandledException(logger, exception, httpContext.Request.Method, httpContext.Request.Path,
+                httpContext.TraceIdentifier);
 
-            problemDetails = new ProblemDetails
-            {
-                Status = StatusCodes.Status500InternalServerError,
-                Title = ReasonPhrases.GetReasonPhrase(StatusCodes.Status500InternalServerError),
-                Detail = "Unexpected error has occured.",
-            };
+            problemDetails.Status = StatusCodes.Status500InternalServerError;
+            problemDetails.Title = ReasonPhrases.GetReasonPhrase(StatusCodes.Status500InternalServerError);
+            problemDetails.Detail = "Unexpected error has occured.";
         }
 
         httpContext.Response.StatusCode = problemDetails.Status ?? StatusCodes.Status500InternalServerError;
         var problemDetailsContext = new ProblemDetailsContext
         {
+            ProblemDetails = problemDetails,
             HttpContext = httpContext,
-            ProblemDetails = problemDetails
+            Exception = exception,
         };
 
         return await problemDetailsService.TryWriteAsync(problemDetailsContext);

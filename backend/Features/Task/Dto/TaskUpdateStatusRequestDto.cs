@@ -1,7 +1,8 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using TaskStatus = TaskManagement.Backend.Features.Task.Entity.TaskStatus;
 
 namespace TaskManagement.Backend.Features.Task.Dto;
 
 public record TaskUpdateStatusRequestDto(
-    [Required] TaskStatus Status);
+    [Required][property: BindRequired] TaskStatus Status);

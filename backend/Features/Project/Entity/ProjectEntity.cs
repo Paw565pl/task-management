@@ -33,7 +33,7 @@ public class ProjectEntity
     public void RefreshUpdatedAt() => UpdatedAt = DateTime.UtcNow;
 }
 
-internal class ProjectEntityConfiguration : IEntityTypeConfiguration<ProjectEntity>
+internal sealed class ProjectEntityConfiguration : IEntityTypeConfiguration<ProjectEntity>
 {
     public void Configure(EntityTypeBuilder<ProjectEntity> builder)
     {
