@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Scalar.AspNetCore;
 using TaskManagement.Backend.Core.Context;
 using TaskManagement.Backend.Core.ExceptionHandler;
@@ -75,20 +75,9 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.MapScalarApiReference(options =>
         options
-            .AddPreferredSecuritySchemes(JwtBearerDefaults.AuthenticationScheme)
-            .AddAuthorizationCodeFlow(JwtBearerDefaults.AuthenticationScheme, flow =>
+            .AddPreferredSecuritySchemes(nameof(SecuritySchemeType.OAuth2))
+            .AddAuthorizationCodeFlow(nameof(SecuritySchemeType.OAuth2), flow =>
             {
-                var authSettings = app.Services.GetRequiredService<IOptions<AuthSettings>>().Value;
-
-                flow.AuthorizationUrl =
-                    (authSettings.Authority + "/protocol/openid-connect/auth").Replace("keycloak",
-                        "localhost");
-                flow.TokenUrl =
-                    (authSettings.Authority + "/protocol/openid-connect/token").Replace("keycloak",
-                        "localhost");
-                flow.RefreshUrl =
-                    (authSettings.Authority + "/protocol/openid-connect/token").Replace("keycloak",
-                        "localhost");
                 flow.ClientId = "scalar";
                 flow.RedirectUri = "http://localhost:5000/scalar/callback";
                 flow.SelectedScopes = ["openid", "profile", "email"];

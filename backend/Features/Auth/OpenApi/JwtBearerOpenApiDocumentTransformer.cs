@@ -2,22 +2,42 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.OpenApi;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
+using TaskManagement.Backend.Features.Auth.Options;
 
 namespace TaskManagement.Backend.Features.Auth.OpenApi;
 
 public class JwtBearerOpenApiDocumentTransformer(
-    IApiDescriptionGroupCollectionProvider apiDescriptionGroupCollectionProvider) : IOpenApiDocumentTransformer
+    IApiDescriptionGroupCollectionProvider apiDescriptionGroupCollectionProvider,
+    IOptions<AuthOptions> authSettings,
+    IWebHostEnvironment environment) : IOpenApiDocumentTransformer
 {
-    public System.Threading.Tasks.Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context,
+    public System.Threading.Tasks.Task TransformAsync(OpenApiDocument document,
+        OpenApiDocumentTransformerContext context,
         CancellationToken cancellationToken)
     {
+        var authorityUrl = environment.IsDevelopment() ? authSettings.Value.Authority
+                .Replace("keycloak", "localhost") : authSettings.Value.Authority;
+        var authorizationUrl = authorityUrl + "/protocol/openid-connect/auth";
+        var tokenUrl = authorityUrl + "/protocol/openid-connect/token";
+        var refreshUrl = authorityUrl + "/protocol/openid-connect/token";
+
         document.Components ??= new OpenApiComponents();
-        document.Components.SecuritySchemes[JwtBearerDefaults.AuthenticationScheme] = new OpenApiSecurityScheme
+        document.Components.SecuritySchemes[nameof(SecuritySchemeType.OAuth2)] = new OpenApiSecurityScheme
         {
             Type = SecuritySchemeType.OAuth2,
             Scheme = JwtBearerDefaults.AuthenticationScheme,
-            BearerFormat = "JWT"
+            BearerFormat = "JWT",
+            Flows = new OpenApiOAuthFlows
+            {
+                AuthorizationCode = new OpenApiOAuthFlow
+                {
+                    AuthorizationUrl = new Uri(authorizationUrl),
+                    TokenUrl = new Uri(tokenUrl),
+                    RefreshUrl = new Uri(refreshUrl),
+                }
+            }
         };
 
         var securedEndpoints = new HashSet<(string path, string method)>();
