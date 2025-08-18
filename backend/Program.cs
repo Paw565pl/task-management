@@ -25,7 +25,13 @@ builder.Services.AddOpenApi(options =>
 );
 
 builder.Services.AddControllers().MapBindingErrorsToProblemDetails();
-builder.Services.AddProblemDetails();
+builder.Services.AddProblemDetails(options =>
+    options.CustomizeProblemDetails = context =>
+    {
+        context.ProblemDetails.Instance =
+            $"{context.HttpContext.Request.Method} {context.HttpContext.Request.Path}";
+    }
+);
 builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
