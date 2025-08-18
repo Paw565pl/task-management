@@ -24,7 +24,7 @@ builder.Services.AddOpenApi(options =>
     options.AddDocumentTransformer<JwtBearerOpenApiDocumentTransformer>()
 );
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().MapBindingErrorsToProblemDetails();
 builder.Services.AddProblemDetails();
 builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
