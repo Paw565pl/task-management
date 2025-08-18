@@ -14,7 +14,7 @@ public class JwtBearerOpenApiDocumentTransformer(
     IWebHostEnvironment environment
 ) : IOpenApiDocumentTransformer
 {
-    public System.Threading.Tasks.Task TransformAsync(
+    public Task TransformAsync(
         OpenApiDocument document,
         OpenApiDocumentTransformerContext context,
         CancellationToken cancellationToken
@@ -105,6 +105,6 @@ public class JwtBearerOpenApiDocumentTransformer(
             }
         }
 
-        return System.Threading.Tasks.Task.CompletedTask;
+        return Task.CompletedTask;
     }
 }

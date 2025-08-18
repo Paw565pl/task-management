@@ -88,4 +88,4 @@ public static class ModelStateProblemDetailsExtensions
     }
 }
 
-internal record ValidationError(string PropertyName, string Message);
+internal sealed record ValidationError(string PropertyName, string Message);
