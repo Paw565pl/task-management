@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
+using TaskManagement.Backend.Core.Dto;
 
 namespace TaskManagement.Backend.Core.Extensions;
 
@@ -34,10 +35,8 @@ public static class ModelStateProblemDetailsExtensions
                     );
                 }
 
-                const string detail = "Request body is not valid.";
-
                 var hasInvalidBody = errors.Any(kv =>
-                    string.Equals(kv.Key, "$", StringComparison.Ordinal)
+                    string.Equals(kv.Key, "$", StringComparison.OrdinalIgnoreCase)
                 );
                 if (hasInvalidBody)
                 {
@@ -46,7 +45,7 @@ public static class ModelStateProblemDetailsExtensions
                         {
                             Status = statusCode,
                             Title = ReasonPhrases.GetReasonPhrase(statusCode),
-                            Detail = detail,
+                            Detail = "Request body is not valid.",
                         }
                     );
                 }
@@ -63,19 +62,13 @@ public static class ModelStateProblemDetailsExtensions
                                 ? err.ErrorMessage
                                 : "Invalid value.";
 
-                            return new { propertyName, message };
+                            return new ValidationError(propertyName, message);
                         });
                     })
                     .ToList();
 
                 return new BadRequestObjectResult(
-                    new ProblemDetails
-                    {
-                        Status = statusCode,
-                        Title = ReasonPhrases.GetReasonPhrase(statusCode),
-                        Detail = detail,
-                        Extensions = { ["errors"] = validationErrors },
-                    }
+                    new ValidationProblemDetailsDto { Errors = validationErrors }
                 );
             }
         );
