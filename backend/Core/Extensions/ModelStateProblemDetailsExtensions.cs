@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.WebUtilities;
-using TaskManagement.Backend.Core.Dto;
 
 namespace TaskManagement.Backend.Core.Extensions;
 
@@ -13,6 +13,10 @@ public static class ModelStateProblemDetailsExtensions
             options.InvalidModelStateResponseFactory = context =>
             {
                 const int statusCode = StatusCodes.Status400BadRequest;
+                var title = ReasonPhrases.GetReasonPhrase(statusCode);
+
+                var problemDetailsFactory =
+                    context.HttpContext.RequestServices.GetRequiredService<ProblemDetailsFactory>();
 
                 var modelState = context.ModelState;
                 var errors = modelState
@@ -25,14 +29,14 @@ public static class ModelStateProblemDetailsExtensions
                 var hasEmptyBody = errors.Any(kv => string.IsNullOrWhiteSpace(kv.Key));
                 if (hasEmptyBody)
                 {
-                    return new BadRequestObjectResult(
-                        new ProblemDetails
-                        {
-                            Status = statusCode,
-                            Title = ReasonPhrases.GetReasonPhrase(statusCode),
-                            Detail = "Request body must not be empty.",
-                        }
+                    var problemDetails = problemDetailsFactory.CreateProblemDetails(
+                        context.HttpContext,
+                        statusCode,
+                        title,
+                        null,
+                        "Request body must not be empty."
                     );
+                    return new BadRequestObjectResult(problemDetails);
                 }
 
                 var hasInvalidBody = errors.Any(kv =>
@@ -40,14 +44,14 @@ public static class ModelStateProblemDetailsExtensions
                 );
                 if (hasInvalidBody)
                 {
-                    return new BadRequestObjectResult(
-                        new ProblemDetails
-                        {
-                            Status = statusCode,
-                            Title = ReasonPhrases.GetReasonPhrase(statusCode),
-                            Detail = "Request body is not valid.",
-                        }
+                    var problemDetails = problemDetailsFactory.CreateProblemDetails(
+                        context.HttpContext,
+                        statusCode,
+                        title,
+                        null,
+                        "Request body is not valid."
                     );
+                    return new BadRequestObjectResult(problemDetails);
                 }
 
                 var validationErrors = errors
@@ -67,12 +71,21 @@ public static class ModelStateProblemDetailsExtensions
                     })
                     .ToList();
 
-                return new BadRequestObjectResult(
-                    new ValidationProblemDetailsDto { Errors = validationErrors }
+                var validationProblemDetails = problemDetailsFactory.CreateProblemDetails(
+                    context.HttpContext,
+                    statusCode,
+                    title,
+                    null,
+                    "One or more validation errors occured."
                 );
+                validationProblemDetails.Extensions.Add("errors", validationErrors);
+
+                return new BadRequestObjectResult(validationProblemDetails);
             }
         );
 
         return builder;
     }
 }
+
+internal record ValidationError(string PropertyName, string Message);
