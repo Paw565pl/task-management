@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.WebUtilities;
+using TaskManagement.Backend.Core.Dtos;
 
 namespace TaskManagement.Backend.Core.Extensions;
 
@@ -29,14 +30,15 @@ public static class ModelStateProblemDetailsExtensions
                 var hasEmptyBody = errors.Any(kv => string.IsNullOrWhiteSpace(kv.Key));
                 if (hasEmptyBody)
                 {
-                    var problemDetails = problemDetailsFactory.CreateProblemDetails(
-                        context.HttpContext,
-                        statusCode,
-                        title,
-                        null,
-                        "Request body must not be empty."
+                    return new BadRequestObjectResult(
+                        problemDetailsFactory.CreateProblemDetails(
+                            context.HttpContext,
+                            statusCode,
+                            title,
+                            null,
+                            "Request body must not be empty."
+                        )
                     );
-                    return new BadRequestObjectResult(problemDetails);
                 }
 
                 var hasInvalidBody = errors.Any(kv =>
@@ -44,14 +46,15 @@ public static class ModelStateProblemDetailsExtensions
                 );
                 if (hasInvalidBody)
                 {
-                    var problemDetails = problemDetailsFactory.CreateProblemDetails(
-                        context.HttpContext,
-                        statusCode,
-                        title,
-                        null,
-                        "Request body is not valid."
+                    return new BadRequestObjectResult(
+                        problemDetailsFactory.CreateProblemDetails(
+                            context.HttpContext,
+                            statusCode,
+                            title,
+                            null,
+                            "Request body is not valid."
+                        )
                     );
-                    return new BadRequestObjectResult(problemDetails);
                 }
 
                 var validationErrors = errors
@@ -70,22 +73,19 @@ public static class ModelStateProblemDetailsExtensions
                         });
                     })
                     .ToList();
-
-                var validationProblemDetails = problemDetailsFactory.CreateProblemDetails(
-                    context.HttpContext,
-                    statusCode,
-                    title,
-                    null,
-                    "One or more validation errors occured."
+                var problemDetails = problemDetailsFactory.CreateProblemDetails(
+                    context.HttpContext
                 );
-                validationProblemDetails.Extensions.Add("errors", validationErrors);
 
-                return new BadRequestObjectResult(validationProblemDetails);
+                return new BadRequestObjectResult(
+                    ValidationFailureResponseDto.FromProblemDetails(
+                        problemDetails,
+                        validationErrors
+                    )
+                );
             }
         );
 
         return builder;
     }
 }
-
-internal sealed record ValidationError(string PropertyName, string Message);
