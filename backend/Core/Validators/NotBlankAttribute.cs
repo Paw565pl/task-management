@@ -3,11 +3,8 @@ using System.ComponentModel.DataAnnotations;
 namespace TaskManagement.Backend.Core.Validators;
 
 [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
-public class NotBlankAttribute(string errorMessage) : ValidationAttribute(errorMessage)
+public class NotBlankAttribute() : ValidationAttribute("{0} cannot be empty.")
 {
-    public NotBlankAttribute()
-        : this("{0} cannot be empty.") { }
-
     protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
     {
         // allow optional fields and not string fields
