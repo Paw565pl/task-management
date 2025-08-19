@@ -3,7 +3,6 @@ using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using TaskManagement.Backend.Core.DbContexts;
 using TaskManagement.Backend.Core.Dtos;
-using TaskManagement.Backend.Core.ExceptionHandlers;
 using TaskManagement.Backend.Features.Projects.Exceptions;
 using TaskManagement.Backend.Features.Tasks.Dtos;
 using TaskManagement.Backend.Features.Tasks.Entities;
@@ -41,7 +40,7 @@ public class TaskService(AppDbContext appDbContext)
             .Projects.AsNoTracking()
             .AnyAsync(p => p.Id == projectId, cancellationToken);
         if (!doesProjectExist)
-            throw new ProblemDetailsException(ProjectExceptionReason.NotFound);
+            throw new ProjectNotFoundException();
 
         var query = appDbContext.Tasks.AsNoTracking().Where(t => t.ProjectId == projectId);
 
@@ -89,7 +88,7 @@ public class TaskService(AppDbContext appDbContext)
             .Projects.AsNoTracking()
             .AnyAsync(p => p.Id == projectId, cancellationToken);
         if (!doesProjectExist)
-            throw new ProblemDetailsException(ProjectExceptionReason.NotFound);
+            throw new ProjectNotFoundException();
 
         var task = await appDbContext
             .Tasks.AsNoTracking()
@@ -97,7 +96,7 @@ public class TaskService(AppDbContext appDbContext)
             .ToResponseDto()
             .FirstOrDefaultAsync(cancellationToken);
         if (task is null)
-            throw new ProblemDetailsException(TaskExceptionReason.NotFound);
+            throw new TaskNotFoundException();
 
         return task;
     }
@@ -113,7 +112,7 @@ public class TaskService(AppDbContext appDbContext)
             cancellationToken
         );
         if (project is null)
-            throw new ProblemDetailsException(ProjectExceptionReason.NotFound);
+            throw new ProjectNotFoundException();
 
         project.RefreshUpdatedAt();
 
@@ -137,7 +136,7 @@ public class TaskService(AppDbContext appDbContext)
             cancellationToken
         );
         if (project is null)
-            throw new ProblemDetailsException(ProjectExceptionReason.NotFound);
+            throw new ProjectNotFoundException();
 
         project.RefreshUpdatedAt();
 
@@ -146,7 +145,7 @@ public class TaskService(AppDbContext appDbContext)
             cancellationToken
         );
         if (task is null)
-            throw new ProblemDetailsException(TaskExceptionReason.NotFound);
+            throw new TaskNotFoundException();
 
         task.Title = taskUpdateRequestDto.Title;
         task.Description = taskUpdateRequestDto.Description;
@@ -172,7 +171,7 @@ public class TaskService(AppDbContext appDbContext)
             cancellationToken
         );
         if (project is null)
-            throw new ProblemDetailsException(ProjectExceptionReason.NotFound);
+            throw new ProjectNotFoundException();
 
         project.RefreshUpdatedAt();
 
@@ -181,7 +180,7 @@ public class TaskService(AppDbContext appDbContext)
             cancellationToken
         );
         if (task is null)
-            throw new ProblemDetailsException(TaskExceptionReason.NotFound);
+            throw new TaskNotFoundException();
 
         task.Status = taskUpdateStatusRequestDto.Status;
 
@@ -202,7 +201,7 @@ public class TaskService(AppDbContext appDbContext)
             cancellationToken
         );
         if (project is null)
-            throw new ProblemDetailsException(ProjectExceptionReason.NotFound);
+            throw new ProjectNotFoundException();
 
         await using var transaction = await appDbContext.Database.BeginTransactionAsync(
             cancellationToken
@@ -213,7 +212,7 @@ public class TaskService(AppDbContext appDbContext)
             .Tasks.Where(t => t.Id == taskId && t.ProjectId == project.Id)
             .ExecuteDeleteAsync(cancellationToken);
         if (deletedCount == 0)
-            throw new ProblemDetailsException(TaskExceptionReason.NotFound);
+            throw new TaskNotFoundException();
 
         await appDbContext.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);

@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using TaskManagement.Backend.Core.DbContexts;
 using TaskManagement.Backend.Core.Dtos;
-using TaskManagement.Backend.Core.ExceptionHandlers;
 using TaskManagement.Backend.Features.Projects.Dtos;
 using TaskManagement.Backend.Features.Projects.Entities;
 using TaskManagement.Backend.Features.Projects.Exceptions;
@@ -70,7 +69,7 @@ public class ProjectService(AppDbContext appDbContext)
             .ToResponseDto()
             .FirstOrDefaultAsync(cancellationToken);
         if (project is null)
-            throw new ProblemDetailsException(ProjectExceptionReason.NotFound);
+            throw new ProjectNotFoundException();
 
         return project;
     }
@@ -98,7 +97,7 @@ public class ProjectService(AppDbContext appDbContext)
                 )
             )
         {
-            throw new ProblemDetailsException(ProjectExceptionReason.NameNotUnique);
+            throw new ProjectNameNotUniqueException();
         }
     }
 }

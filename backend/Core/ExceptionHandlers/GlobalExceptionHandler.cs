@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
+using TaskManagement.Backend.Core.Exceptions;
 
 namespace TaskManagement.Backend.Core.ExceptionHandlers;
 
