@@ -3,16 +3,19 @@ using System.ComponentModel.DataAnnotations;
 namespace TaskManagement.Backend.Core.Validators;
 
 [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
-public class NotBlankAttribute : ValidationAttribute
+public class NotBlankAttribute(string errorMessage) : ValidationAttribute(errorMessage)
 {
+    public NotBlankAttribute()
+        : this("{0} cannot be empty.") { }
+
     protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
     {
-        // allow optional fields
-        if (value is null)
+        // allow optional fields and not string fields
+        if (value is not string stringValue)
             return ValidationResult.Success;
 
-        if (string.IsNullOrWhiteSpace((string)value))
-            return new ValidationResult($"{validationContext.DisplayName} cannot be empty.");
+        if (string.IsNullOrWhiteSpace(stringValue))
+            return new ValidationResult(FormatErrorMessage(validationContext.DisplayName));
 
         return ValidationResult.Success;
     }
