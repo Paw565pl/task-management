@@ -22,7 +22,7 @@ public static class ModelStateProblemDetailsExtensions
                 var errors = modelState
                     .Where(kv =>
                         kv.Value?.Errors.Count > 0
-                        && !kv.Key.Contains("dto", StringComparison.OrdinalIgnoreCase)
+                        && !kv.Key.EndsWith("dto", StringComparison.OrdinalIgnoreCase)
                     )
                     .ToList();
 
