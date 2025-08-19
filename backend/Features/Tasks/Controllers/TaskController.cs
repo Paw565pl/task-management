@@ -6,7 +6,9 @@ using TaskManagement.Backend.Features.Tasks.Service;
 
 namespace TaskManagement.Backend.Features.Tasks.Controllers;
 
-[ApiController, Route("/api/v1/projects/{projectId:long}/tasks"), Authorize]
+[Authorize]
+[ApiController]
+[Route("/api/v1/projects/{projectId:long}/tasks")]
 public class TaskController(TaskService taskService) : ControllerBase
 {
     [HttpGet]
