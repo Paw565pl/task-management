@@ -7,9 +7,23 @@ using TaskStatus = TaskManagement.Backend.Features.Tasks.Entities.TaskStatus;
 namespace TaskManagement.Backend.Features.Tasks.Dtos;
 
 public record TaskUpdateRequestDto(
-    [Required] [NotBlank] [StringLength(250, MinimumLength = 5)] string Title,
-    [NotBlank] [StringLength(5000, MinimumLength = 10)] string? Description,
-    [Required] [property: BindRequired] TaskStatus Status,
-    [Required] [property: BindRequired] TaskPriority Priority,
-    [Required] [property: BindRequired] DateOnly DueDate
+    [Required(AllowEmptyStrings = false, ErrorMessage = "Title is required.")]
+    [StringLength(
+        250,
+        MinimumLength = 5,
+        ErrorMessage = "Title must be between 5 and 250 characters long."
+    )]
+        string Title,
+    [NotBlank(ErrorMessage = "Description cannot be empty.")]
+    [StringLength(
+        5000,
+        MinimumLength = 10,
+        ErrorMessage = "Description must be between 10 and 5000 characters long."
+    )]
+        string? Description,
+    [Required(ErrorMessage = "Status is required.")] [property: BindRequired] TaskStatus Status,
+    [Required(ErrorMessage = "Priority is required.")]
+    [property: BindRequired]
+        TaskPriority Priority,
+    [Required(ErrorMessage = "DueDate is required.")] [property: BindRequired] DateOnly DueDate
 );
