@@ -9,7 +9,7 @@ using TaskManagement.Backend.Features.Tasks.Entities;
 using TaskManagement.Backend.Features.Tasks.Exceptions;
 using TaskManagement.Backend.Features.Tasks.Mappers;
 
-namespace TaskManagement.Backend.Features.Tasks.Service;
+namespace TaskManagement.Backend.Features.Tasks.Services;
 
 public class TaskService(AppDbContext appDbContext)
 {

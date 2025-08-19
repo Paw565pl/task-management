@@ -1,5 +1,5 @@
 using TaskManagement.Backend.Features.Projects.Services;
-using TaskManagement.Backend.Features.Tasks.Service;
+using TaskManagement.Backend.Features.Tasks.Services;
 
 namespace TaskManagement.Backend.Core.Extensions;
 
