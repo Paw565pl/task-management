@@ -23,5 +23,8 @@ public record TaskCreateRequestDto(
     [Required(ErrorMessage = "Priority is required.")]
     [property: BindRequired]
         TaskPriority Priority,
-    [Required(ErrorMessage = "DueDate is required.")] [property: BindRequired] DateOnly DueDate
+    [Required(ErrorMessage = "DueDate is required.")]
+    [property: BindRequired]
+    [NotPastDate(ErrorMessage = "DueDate must be a future date.", IsTodayAllowed = false)]
+        DateOnly DueDate
 );
