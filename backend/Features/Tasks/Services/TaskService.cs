@@ -30,7 +30,7 @@ public class TaskService(AppDbContext appDbContext)
 
     public async Task<PageResponseDto<TaskResponseDto>> GetAllAsync(
         long projectId,
-        TaskFilterDto? taskFilterDto,
+        TaskFiltersDto? taskFilterDto,
         SortOptionsDto? sortOptionsDto = null,
         PageOptionsDto? pageOptionsDto = null,
         CancellationToken cancellationToken = default

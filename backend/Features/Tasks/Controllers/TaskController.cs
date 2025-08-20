@@ -17,7 +17,7 @@ public class TaskController(TaskService taskService) : ControllerBase
     [HttpGet]
     public async Task<ActionResult<PageResponseDto<TaskResponseDto>>> GetAll(
         [FromRoute] long projectId,
-        [FromQuery] TaskFilterDto? taskFilterDto,
+        [FromQuery] TaskFiltersDto? taskFilterDto,
         [FromQuery] SortOptionsDto? sortOptionsDto,
         [FromQuery] PageOptionsDto? pageOptionsDto,
         CancellationToken cancellationToken
