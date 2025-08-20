@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using NpgsqlTypes;
 using TaskManagement.Backend.Features.Tasks.Entities;
 
 namespace TaskManagement.Backend.Features.Projects.Entities;
@@ -33,6 +34,8 @@ public class ProjectEntity
     [Column("updated_at")]
     public DateTime UpdatedAt { get; private set; }
 
+    public NpgsqlTsVector SearchVector { get; private init; } = null!;
+
     [InverseProperty(nameof(TaskEntity.Project))]
     public ICollection<TaskEntity> Tasks { get; } = [];
 
@@ -51,5 +54,17 @@ internal sealed class ProjectEntityConfiguration : IEntityTypeConfiguration<Proj
             .Property(x => x.UpdatedAt)
             .HasDefaultValueSql("CURRENT_TIMESTAMP")
             .ValueGeneratedOnAdd();
+
+        builder
+            .Property(x => x.SearchVector)
+            .HasColumnType("tsvector")
+            .HasComputedColumnSql(
+                """
+                setweight(to_tsvector('english', coalesce('name', '')), 'A') ||
+                setweight(to_tsvector('english', coalesce('description', '')), 'B')
+                """,
+                stored: true
+            );
+        builder.HasIndex(x => x.SearchVector).HasMethod("GIN");
     }
 }
