@@ -2,7 +2,7 @@ using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
-using TaskManagement.Backend.Core.DbContexts;
+using TaskManagement.Backend.Core.Db;
 using TaskManagement.Backend.Core.Dtos;
 using TaskManagement.Backend.Features.Projects.Dtos;
 using TaskManagement.Backend.Features.Projects.Entities;

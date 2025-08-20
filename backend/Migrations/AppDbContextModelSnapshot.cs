@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using NpgsqlTypes;
-using TaskManagement.Backend.Core.DbContexts;
+using TaskManagement.Backend.Core.Db;
 
 #nullable disable
 
