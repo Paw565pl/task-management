@@ -53,7 +53,7 @@ namespace TaskManagement.Backend.Migrations
                         .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("tsvector")
-                        .HasComputedColumnSql("setweight(to_tsvector('english', coalesce('name', '')), 'A') ||\nsetweight(to_tsvector('english', coalesce('description', '')), 'B')", true);
+                        .HasComputedColumnSql("setweight(to_tsvector('english', coalesce(name, '')), 'A') ||\nsetweight(to_tsvector('english', coalesce(description, '')), 'B')", true);
 
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAdd()

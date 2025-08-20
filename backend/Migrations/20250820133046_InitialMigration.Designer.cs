@@ -13,7 +13,7 @@ using TaskManagement.Backend.Core.DbContexts;
 namespace TaskManagement.Backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250820113350_InitialMigration")]
+    [Migration("20250820133046_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -56,7 +56,7 @@ namespace TaskManagement.Backend.Migrations
                         .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("tsvector")
-                        .HasComputedColumnSql("setweight(to_tsvector('english', coalesce('name', '')), 'A') ||\nsetweight(to_tsvector('english', coalesce('description', '')), 'B')", true);
+                        .HasComputedColumnSql("setweight(to_tsvector('english', coalesce(name, '')), 'A') ||\nsetweight(to_tsvector('english', coalesce(description, '')), 'B')", true);
 
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAdd()

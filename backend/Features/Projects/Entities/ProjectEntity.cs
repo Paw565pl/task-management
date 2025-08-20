@@ -60,8 +60,8 @@ internal sealed class ProjectEntityConfiguration : IEntityTypeConfiguration<Proj
             .HasColumnType("tsvector")
             .HasComputedColumnSql(
                 """
-                setweight(to_tsvector('english', coalesce('name', '')), 'A') ||
-                setweight(to_tsvector('english', coalesce('description', '')), 'B')
+                setweight(to_tsvector('english', coalesce(name, '')), 'A') ||
+                setweight(to_tsvector('english', coalesce(description, '')), 'B')
                 """,
                 stored: true
             );

@@ -46,7 +46,7 @@ namespace TaskManagement.Backend.Migrations
                     SearchVector = table.Column<NpgsqlTsVector>(
                         type: "tsvector",
                         nullable: false,
-                        computedColumnSql: "setweight(to_tsvector('english', coalesce('name', '')), 'A') ||\nsetweight(to_tsvector('english', coalesce('description', '')), 'B')",
+                        computedColumnSql: "setweight(to_tsvector('english', coalesce(name, '')), 'A') ||\nsetweight(to_tsvector('english', coalesce(description, '')), 'B')",
                         stored: true
                     ),
                 },
