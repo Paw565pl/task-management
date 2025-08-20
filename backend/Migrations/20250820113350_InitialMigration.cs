@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using NpgsqlTypes;
 
 #nullable disable
 
@@ -41,6 +42,12 @@ namespace TaskManagement.Backend.Migrations
                         type: "timestamp with time zone",
                         nullable: false,
                         defaultValueSql: "CURRENT_TIMESTAMP"
+                    ),
+                    SearchVector = table.Column<NpgsqlTsVector>(
+                        type: "tsvector",
+                        nullable: false,
+                        computedColumnSql: "setweight(to_tsvector('english', coalesce('name', '')), 'A') ||\nsetweight(to_tsvector('english', coalesce('description', '')), 'B')",
+                        stored: true
                     ),
                 },
                 constraints: table =>
@@ -109,6 +116,14 @@ namespace TaskManagement.Backend.Migrations
                 column: "name",
                 unique: true
             );
+
+            migrationBuilder
+                .CreateIndex(
+                    name: "IX_projects_SearchVector",
+                    table: "projects",
+                    column: "SearchVector"
+                )
+                .Annotation("Npgsql:IndexMethod", "GIN");
 
             migrationBuilder.CreateIndex(
                 name: "IX_projects_updated_at",

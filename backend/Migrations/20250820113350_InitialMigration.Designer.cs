@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using NpgsqlTypes;
 using TaskManagement.Backend.Core.DbContexts;
 
 #nullable disable
@@ -12,7 +13,7 @@ using TaskManagement.Backend.Core.DbContexts;
 namespace TaskManagement.Backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250819074552_InitialMigration")]
+    [Migration("20250820113350_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -51,6 +52,12 @@ namespace TaskManagement.Backend.Migrations
                         .HasColumnType("character varying(250)")
                         .HasColumnName("name");
 
+                    b.Property<NpgsqlTsVector>("SearchVector")
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("tsvector")
+                        .HasComputedColumnSql("setweight(to_tsvector('english', coalesce('name', '')), 'A') ||\nsetweight(to_tsvector('english', coalesce('description', '')), 'B')", true);
+
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
@@ -60,6 +67,10 @@ namespace TaskManagement.Backend.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedAt");
+
+                    b.HasIndex("SearchVector");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchVector"), "GIN");
 
                     b.HasIndex("UpdatedAt");
 
