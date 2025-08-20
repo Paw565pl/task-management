@@ -15,13 +15,19 @@ public class ProjectController(ProjectService projectService) : ControllerBase
     [ProducesResponseType<ValidationFailureResponseDto>(StatusCodes.Status400BadRequest)]
     [HttpGet]
     public async Task<ActionResult<PageResponseDto<ProjectResponseDto>>> GetAll(
+        [FromQuery] ProjectFiltersDto? projectFiltersDto,
         [FromQuery] SortOptionsDto? sortOptionsDto,
         [FromQuery] PageOptionsDto? pageOptionsDto,
         CancellationToken cancellationToken
     )
     {
         return Ok(
-            await projectService.GetAllAsync(sortOptionsDto, pageOptionsDto, cancellationToken)
+            await projectService.GetAllAsync(
+                projectFiltersDto,
+                sortOptionsDto,
+                pageOptionsDto,
+                cancellationToken
+            )
         );
     }
 

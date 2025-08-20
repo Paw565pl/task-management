@@ -26,12 +26,21 @@ public class ProjectService(AppDbContext appDbContext)
     }.AsReadOnly();
 
     public async Task<PageResponseDto<ProjectResponseDto>> GetAllAsync(
+        ProjectFiltersDto? projectFiltersDto = null,
         SortOptionsDto? sortOptionsDto = null,
         PageOptionsDto? pageOptionsDto = null,
         CancellationToken cancellationToken = default
     )
     {
         var query = appDbContext.Projects.AsNoTracking();
+
+        var searchTerm = projectFiltersDto?.SearchTerm;
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            query = query.Where(p =>
+                p.SearchVector.Matches(EF.Functions.PlainToTsQuery("english", searchTerm))
+            );
+        }
 
         var pageNumber = pageOptionsDto?.PageNumber ?? PageOptionsDto.DefaultPageNumber;
         var pageSize = pageOptionsDto?.PageSize ?? PageOptionsDto.DefaultPageSize;
@@ -42,10 +51,18 @@ public class ProjectService(AppDbContext appDbContext)
 
         if (SortColumns.TryGetValue(sortOptionsDto?.SortBy ?? string.Empty, out var keySelector))
         {
-            query =
-                sortOptionsDto?.SortDirection == SortDirection.Asc
-                    ? query.OrderBy(keySelector).ThenBy(p => p.Id)
-                    : query.OrderByDescending(keySelector).ThenBy(p => p.Id);
+            var isAscending = sortOptionsDto?.SortDirection == SortDirection.Asc;
+            query = isAscending
+                ? query.OrderBy(keySelector).ThenBy(p => p.Id)
+                : query.OrderByDescending(keySelector).ThenBy(p => p.Id);
+        }
+        else if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            query = query
+                .OrderByDescending(p =>
+                    p.SearchVector.Rank(EF.Functions.PlainToTsQuery("english", searchTerm))
+                )
+                .ThenBy(p => p.Id);
         }
         else
         {
