@@ -1,7 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
+using EntityFramework.Exceptions.Common;
 using Microsoft.EntityFrameworkCore;
-using Npgsql;
 using TaskManagement.Backend.Core.Db;
 using TaskManagement.Backend.Core.Dtos;
 using TaskManagement.Backend.Features.Projects.Dtos;
@@ -133,10 +133,9 @@ public class ProjectService(AppDbContext appDbContext, IFusionCache fusionCache)
 
             return project.ToResponseDto();
         }
-        catch (DbUpdateException ex)
-            when (ex.InnerException is PostgresException { SqlState: "23505" } postgresEx
-                && string.Equals(
-                    postgresEx.ConstraintName,
+        catch (UniqueConstraintException ex)
+            when (string.Equals(
+                    ex.ConstraintName,
                     ProjectEntity.UniqueNameConstraint,
                     StringComparison.Ordinal
                 )

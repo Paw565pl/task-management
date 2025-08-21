@@ -1,3 +1,4 @@
+using EntityFramework.Exceptions.PostgreSQL;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -19,7 +20,9 @@ builder
     .ValidateOnStart();
 
 builder.Services.AddDbContextPool<AppDbContext>(optionsBuilder =>
-    optionsBuilder.UseNpgsql(builder.Configuration.GetConnectionString("Postgres"))
+    optionsBuilder
+        .UseNpgsql(builder.Configuration.GetConnectionString("Postgres"))
+        .UseExceptionProcessor()
 );
 builder.Services.AddOpenTelemetrySetup(
     new Uri(builder.Configuration.GetConnectionString("Jaeger") ?? string.Empty)
