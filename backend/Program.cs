@@ -8,6 +8,7 @@ using TaskManagement.Backend.Core.ExceptionHandlers;
 using TaskManagement.Backend.Core.Extensions;
 using TaskManagement.Backend.Features.Auth.OpenApi;
 using TaskManagement.Backend.Features.Auth.Options;
+using ZiggyCreatures.Caching.Fusion;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,6 +38,19 @@ builder.Services.AddProblemDetails(options =>
 );
 builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder
+    .Services.AddFusionCache()
+    .WithDefaultEntryOptions(options =>
+    {
+        options.Duration = TimeSpan.FromMinutes(5);
+
+        options.IsFailSafeEnabled = true;
+        options.FailSafeMaxDuration = TimeSpan.FromHours(1);
+        options.FailSafeThrottleDuration = TimeSpan.FromSeconds(30);
+
+        options.FactorySoftTimeout = TimeSpan.FromMilliseconds(200);
+        options.FactoryHardTimeout = TimeSpan.FromMilliseconds(3000);
+    });
 
 builder
     .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

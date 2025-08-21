@@ -20,6 +20,7 @@ public static class OpenTelemetryExtensions
                     .AddHttpClientInstrumentation()
                     .AddEntityFrameworkCoreInstrumentation()
                     .AddNpgsql()
+                    .AddFusionCacheInstrumentation()
                     .AddOtlpExporter(options => options.Endpoint = otlpExporter)
             );
 
