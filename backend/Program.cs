@@ -78,6 +78,9 @@ using (var scope = app.Services.CreateScope())
         await dbContext.Database.MigrateAsync();
         Console.WriteLine("Migrations applied successfully.");
     }
+
+    if (app.Environment.IsDevelopment())
+        await DataSeeder.SeedAsync(dbContext);
 }
 
 app.UseExceptionHandler();
