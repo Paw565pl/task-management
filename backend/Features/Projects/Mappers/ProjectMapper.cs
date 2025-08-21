@@ -12,6 +12,7 @@ public static partial class ProjectMapper
     [MapperIgnoreTarget(nameof(ProjectEntity.Id))]
     [MapperIgnoreTarget(nameof(ProjectEntity.CreatedAt))]
     [MapperIgnoreTarget(nameof(ProjectEntity.UpdatedAt))]
+    [MapperIgnoreTarget(nameof(ProjectEntity.SearchVector))]
     public static partial ProjectEntity ToEntity(
         this ProjectCreateRequestDto projectCreateRequestDto
     );
@@ -26,6 +27,7 @@ public static partial class ProjectMapper
         nameof(ProjectResponseDto.CompletedTaskCount),
         Use = nameof(MapCompletedTaskCount)
     )]
+    [MapperIgnoreSource(nameof(ProjectEntity.SearchVector))]
     public static partial ProjectResponseDto ToResponseDto(this ProjectEntity projectEntity);
 
     public static partial IQueryable<ProjectResponseDto> ToResponseDto(
