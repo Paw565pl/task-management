@@ -20,6 +20,9 @@ builder
 builder.Services.AddDbContextPool<AppDbContext>(optionsBuilder =>
     optionsBuilder.UseNpgsql(builder.Configuration.GetConnectionString("Postgres"))
 );
+builder.Services.AddOpenTelemetrySetup(
+    new Uri(builder.Configuration.GetConnectionString("Jaeger") ?? string.Empty)
+);
 builder.Services.AddOpenApi(options =>
     options.AddDocumentTransformer<JwtBearerOpenApiDocumentTransformer>()
 );
