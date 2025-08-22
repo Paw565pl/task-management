@@ -4,13 +4,14 @@ This is a robust and flexible RESTful API designed for comprehensive project and
 
 ## Technologies Used
 
-- **C#**: The versatile and powerful programming language at the core of the API.
-- **ASP.NET**: A high-performance, open-source framework for building modern, cloud-enabled, Internet-connected applications.
-- **Keycloak**: An open-source Identity and Access Management solution, providing robust authentication and authorization services via OAuth2.
+- **C# & ASP\.NET Core**: Core development language and framework.
 - **Mapperly**: A compile-time source generator for fast and type-safe object mapping in C#.
-- **PostgreSQL**: A powerful, open-source object-relational database system known for its reliability, feature robustness, and performance.
-- **Docker**: A platform for developing, shipping, and running applications in containers, ensuring environmental consistency.
+- **FusionCache**: High-performance, multi-layered caching.
 - **Scalar**: A modern and intuitive tool for generating interactive API documentation.
+- **Docker**: A platform for developing, shipping, and running applications in containers, ensuring environmental consistency.
+- **Keycloak**: An open-source Identity and Access Management solution, providing robust authentication and authorization services via OAuth2.
+- **PostgreSQL**: A powerful, open-source object-relational database system known for its reliability, feature robustness, and performance.
+- **Jaeger**: Distributed tracing and observability through the power of OpenTelemetry.
 
 ## How to run it locally?
 
@@ -20,4 +21,8 @@ It is fairly simple thanks to docker. Simply run this command after cloning the 
 docker compose -f docker-compose.dev.yml up --build --watch
 ```
 
-That's all! Now simply hit [localhost:5000](http://localhost:5000) and explore available endpoints. API is documented on this URL [localhost:5000/scalar](http://localhost:5000/scalar).
+That's all!
+
+- Now simply hit [localhost:5000](http://localhost:5000) and explore available endpoints.
+- API is documented on this URL [localhost:5000/scalar](http://localhost:5000/scalar).
+- View Jaeger traces on this URL [localhost:16686](http://localhost:16686).
