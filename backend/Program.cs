@@ -9,6 +9,7 @@ using TaskManagement.Backend.Core.ExceptionHandlers;
 using TaskManagement.Backend.Core.Extensions;
 using TaskManagement.Backend.Features.Auth.OpenApi;
 using TaskManagement.Backend.Features.Auth.Options;
+using TaskManagement.Backend.Features.Auth.Policies;
 using ZiggyCreatures.Caching.Fusion;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -81,7 +82,7 @@ builder
 
         options.TokenValidationParameters = tokenValidationParameters;
     });
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options => options.AddAdminPolicy());
 
 builder.Services.AddAppServices();
 

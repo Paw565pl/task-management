@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskManagement.Backend.Core.Dtos;
+using TaskManagement.Backend.Features.Auth.Policies;
 using TaskManagement.Backend.Features.Projects.Dtos;
 using TaskManagement.Backend.Features.Projects.Services;
 
@@ -45,6 +46,7 @@ public class ProjectController(ProjectService projectService) : ControllerBase
     [ProducesResponseType<ProjectResponseDto>(StatusCodes.Status201Created)]
     [ProducesResponseType<ValidationFailureResponseDto>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
+    [Authorize(AdminPolicy.PolicyName)]
     [HttpPost]
     public async Task<ActionResult<ProjectResponseDto>> Create(
         [FromBody] ProjectCreateRequestDto projectCreateRequestDto,
