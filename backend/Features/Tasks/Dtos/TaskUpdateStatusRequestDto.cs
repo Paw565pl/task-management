@@ -5,5 +5,8 @@ using TaskStatus = TaskManagement.Backend.Features.Tasks.Entities.TaskStatus;
 namespace TaskManagement.Backend.Features.Tasks.Dtos;
 
 public record TaskUpdateStatusRequestDto(
-    [Required(ErrorMessage = "Status is required.")] [property: BindRequired] TaskStatus Status
+    [Required(ErrorMessage = "Status is required.")]
+    [EnumDataType(typeof(TaskStatus), ErrorMessage = "Invalid status value.")]
+    [property: BindRequired]
+        TaskStatus Status
 );

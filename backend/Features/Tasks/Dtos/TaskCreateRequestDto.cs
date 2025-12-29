@@ -21,6 +21,7 @@ public record TaskCreateRequestDto(
     )]
         string? Description,
     [Required(ErrorMessage = "Priority is required.")]
+    [EnumDataType(typeof(TaskPriority), ErrorMessage = "Invalid priority value.")]
     [property: BindRequired]
         TaskPriority Priority,
     [Required(ErrorMessage = "DueDate is required.")]

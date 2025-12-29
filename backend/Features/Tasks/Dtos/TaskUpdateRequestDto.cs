@@ -21,8 +21,12 @@ public record TaskUpdateRequestDto(
         ErrorMessage = "Description must be between 10 and 5000 characters long."
     )]
         string? Description,
-    [Required(ErrorMessage = "Status is required.")] [property: BindRequired] TaskStatus Status,
+    [Required(ErrorMessage = "Status is required.")]
+    [EnumDataType(typeof(TaskStatus), ErrorMessage = "Invalid status value.")]
+    [property: BindRequired]
+        TaskStatus Status,
     [Required(ErrorMessage = "Priority is required.")]
+    [EnumDataType(typeof(TaskPriority), ErrorMessage = "Invalid priority value.")]
     [property: BindRequired]
         TaskPriority Priority,
     [Required(ErrorMessage = "DueDate is required.")]
