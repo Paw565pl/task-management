@@ -2,7 +2,7 @@ using EntityFramework.Exceptions.PostgreSQL;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Scalar.AspNetCore;
 using TaskManagement.Backend.Core.Db;
 using TaskManagement.Backend.Core.ExceptionHandlers;

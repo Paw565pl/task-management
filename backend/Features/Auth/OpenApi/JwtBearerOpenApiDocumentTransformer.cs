@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.Extensions.Options;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using TaskManagement.Backend.Features.Auth.Options;
 
 namespace TaskManagement.Backend.Features.Auth.OpenApi;
@@ -28,6 +28,7 @@ public class JwtBearerOpenApiDocumentTransformer(
         var refreshUrl = authorityUrl + "/protocol/openid-connect/token";
 
         document.Components ??= new OpenApiComponents();
+        document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
         document.Components.SecuritySchemes[nameof(SecuritySchemeType.OAuth2)] =
             new OpenApiSecurityScheme
             {
@@ -46,22 +47,6 @@ public class JwtBearerOpenApiDocumentTransformer(
             };
 
         var securedEndpoints = new HashSet<(string path, string method)>();
-        var securityRequirement = new OpenApiSecurityRequirement
-        {
-            {
-                new OpenApiSecurityScheme
-                {
-                    Reference = new OpenApiReference
-                    {
-                        Type = ReferenceType.SecurityScheme,
-                        Id = JwtBearerDefaults.AuthenticationScheme,
-                    },
-                },
-                []
-            },
-        };
-
-        // construct securedEndpoints
         foreach (
             var apiDescriptionGroup in apiDescriptionGroupCollectionProvider
                 .ApiDescriptionGroups
@@ -89,9 +74,17 @@ public class JwtBearerOpenApiDocumentTransformer(
             }
         }
 
+        var securityRequirement = new OpenApiSecurityRequirement
+        {
+            { new OpenApiSecuritySchemeReference(JwtBearerDefaults.AuthenticationScheme), [] },
+        };
+
         // apply security requirements only to matching endpoints
         foreach (var (pathKey, pathItem) in document.Paths)
         {
+            if (pathItem.Operations == null)
+                continue;
+
             foreach (var (operationType, openApiOperation) in pathItem.Operations)
             {
                 var path = pathKey.Trim('/');
