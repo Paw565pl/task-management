@@ -20,16 +20,19 @@ builder
     .ValidateDataAnnotations()
     .ValidateOnStart();
 
-builder.Services.AddDbContextPool<AppDbContext>(optionsBuilder =>
-    optionsBuilder
-        .UseNpgsql(builder.Configuration.GetConnectionString("Postgres"))
-        .UseExceptionProcessor()
+builder.Services.AddSingleton<UpdateAuditableEntitiesInterceptor>();
+builder.Services.AddDbContextPool<AppDbContext>(
+    (serviceProvider, optionsBuilder) =>
+        optionsBuilder
+            .UseNpgsql(builder.Configuration.GetConnectionString("Postgres"))
+            .UseExceptionProcessor()
+            .AddInterceptors(
+                serviceProvider.GetRequiredService<UpdateAuditableEntitiesInterceptor>()
+            )
 );
+
 builder.Services.AddOpenTelemetrySetup(
     new Uri(builder.Configuration.GetConnectionString("Jaeger") ?? string.Empty)
-);
-builder.Services.AddOpenApi(options =>
-    options.AddDocumentTransformer<JwtBearerOpenApiDocumentTransformer>()
 );
 
 builder.Services.AddControllers().MapBindingErrorsToProblemDetails();
@@ -40,8 +43,12 @@ builder.Services.AddProblemDetails(options =>
             $"{context.HttpContext.Request.Method} {context.HttpContext.Request.Path}";
     }
 );
-builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>();
+builder.Services.AddOpenApi(options =>
+    options.AddDocumentTransformer<JwtBearerOpenApiDocumentTransformer>()
+);
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>();
+
 builder
     .Services.AddFusionCache()
     .WithDefaultEntryOptions(options =>

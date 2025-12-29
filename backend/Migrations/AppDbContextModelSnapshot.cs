@@ -18,7 +18,7 @@ namespace TaskManagement.Backend.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.8")
+                .HasAnnotation("ProductVersion", "10.0.1")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -33,10 +33,8 @@ namespace TaskManagement.Backend.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasColumnName("created_at");
 
                     b.Property<string>("Description")
                         .HasMaxLength(5000)
@@ -56,10 +54,8 @@ namespace TaskManagement.Backend.Migrations
                         .HasComputedColumnSql("setweight(to_tsvector('english', coalesce(name, '')), 'A') ||\nsetweight(to_tsvector('english', coalesce(description, '')), 'B')", true);
 
                     b.Property<DateTime>("UpdatedAt")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasColumnName("updated_at");
 
                     b.HasKey("Id");
 
@@ -87,10 +83,8 @@ namespace TaskManagement.Backend.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasColumnName("created_at");
 
                     b.Property<string>("Description")
                         .HasMaxLength(5000)
@@ -120,10 +114,8 @@ namespace TaskManagement.Backend.Migrations
                         .HasColumnName("title");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasColumnName("updated_at");
 
                     b.HasKey("Id");
 

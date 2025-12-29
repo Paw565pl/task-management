@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using TaskManagement.Backend.Core.Db;
 using TaskManagement.Backend.Features.Projects.Entities;
 
 namespace TaskManagement.Backend.Features.Tasks.Entities;
@@ -12,8 +12,7 @@ namespace TaskManagement.Backend.Features.Tasks.Entities;
 [Index(nameof(DueDate))]
 [Index(nameof(CreatedAt))]
 [Index(nameof(UpdatedAt))]
-[EntityTypeConfiguration(typeof(TaskEntityConfiguration))]
-public class TaskEntity
+public class TaskEntity : IAuditableEntity
 {
     [Key]
     [Column("id")]
@@ -40,7 +39,7 @@ public class TaskEntity
     public DateTime CreatedAt { get; private init; }
 
     [Column("updated_at")]
-    public DateTime UpdatedAt { get; private set; }
+    public DateTime UpdatedAt { get; private init; }
 
     [ForeignKey(nameof(Project))]
     [Column("project_id")]
@@ -49,21 +48,4 @@ public class TaskEntity
     [InverseProperty(nameof(ProjectEntity.Tasks))]
     [DeleteBehavior(DeleteBehavior.Cascade)]
     public required ProjectEntity? Project { get; init; }
-
-    public void RefreshUpdatedAt() => UpdatedAt = DateTime.UtcNow;
-}
-
-internal sealed class TaskEntityConfiguration : IEntityTypeConfiguration<TaskEntity>
-{
-    public void Configure(EntityTypeBuilder<TaskEntity> builder)
-    {
-        builder
-            .Property(x => x.CreatedAt)
-            .HasDefaultValueSql("CURRENT_TIMESTAMP")
-            .ValueGeneratedOnAdd();
-        builder
-            .Property(x => x.UpdatedAt)
-            .HasDefaultValueSql("CURRENT_TIMESTAMP")
-            .ValueGeneratedOnAdd();
-    }
 }

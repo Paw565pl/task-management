@@ -114,8 +114,6 @@ public class TaskService(AppDbContext appDbContext)
         if (project is null)
             throw new ProjectNotFoundException();
 
-        project.RefreshUpdatedAt();
-
         var task = taskCreateRequestDto.ToEntity(project);
 
         await appDbContext.Tasks.AddAsync(task, cancellationToken);
@@ -138,8 +136,6 @@ public class TaskService(AppDbContext appDbContext)
         if (project is null)
             throw new ProjectNotFoundException();
 
-        project.RefreshUpdatedAt();
-
         var task = await appDbContext.Tasks.FirstOrDefaultAsync(
             t => t.Id == taskId && t.ProjectId == project.Id,
             cancellationToken
@@ -153,7 +149,6 @@ public class TaskService(AppDbContext appDbContext)
         task.Priority = taskUpdateRequestDto.Priority;
         task.DueDate = taskUpdateRequestDto.DueDate;
 
-        task.RefreshUpdatedAt();
         await appDbContext.SaveChangesAsync(cancellationToken);
 
         return task.ToResponseDto();
@@ -173,8 +168,6 @@ public class TaskService(AppDbContext appDbContext)
         if (project is null)
             throw new ProjectNotFoundException();
 
-        project.RefreshUpdatedAt();
-
         var task = await appDbContext.Tasks.FirstOrDefaultAsync(
             t => t.Id == taskId && t.ProjectId == project.Id,
             cancellationToken
@@ -183,8 +176,6 @@ public class TaskService(AppDbContext appDbContext)
             throw new TaskNotFoundException();
 
         task.Status = taskUpdateStatusRequestDto.Status;
-
-        task.RefreshUpdatedAt();
         await appDbContext.SaveChangesAsync(cancellationToken);
 
         return task.ToResponseDto();
@@ -203,18 +194,10 @@ public class TaskService(AppDbContext appDbContext)
         if (project is null)
             throw new ProjectNotFoundException();
 
-        await using var transaction = await appDbContext.Database.BeginTransactionAsync(
-            cancellationToken
-        );
-        project.RefreshUpdatedAt();
-
         var deletedCount = await appDbContext
             .Tasks.Where(t => t.Id == taskId && t.ProjectId == project.Id)
             .ExecuteDeleteAsync(cancellationToken);
         if (deletedCount == 0)
             throw new TaskNotFoundException();
-
-        await appDbContext.SaveChangesAsync(cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
     }
 }

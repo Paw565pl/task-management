@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using NpgsqlTypes;
@@ -35,13 +35,11 @@ namespace TaskManagement.Backend.Migrations
                     ),
                     created_at = table.Column<DateTime>(
                         type: "timestamp with time zone",
-                        nullable: false,
-                        defaultValueSql: "CURRENT_TIMESTAMP"
+                        nullable: false
                     ),
                     updated_at = table.Column<DateTime>(
                         type: "timestamp with time zone",
-                        nullable: false,
-                        defaultValueSql: "CURRENT_TIMESTAMP"
+                        nullable: false
                     ),
                     SearchVector = table.Column<NpgsqlTsVector>(
                         type: "tsvector",
@@ -81,13 +79,11 @@ namespace TaskManagement.Backend.Migrations
                     due_date = table.Column<DateOnly>(type: "date", nullable: false),
                     created_at = table.Column<DateTime>(
                         type: "timestamp with time zone",
-                        nullable: false,
-                        defaultValueSql: "CURRENT_TIMESTAMP"
+                        nullable: false
                     ),
                     updated_at = table.Column<DateTime>(
                         type: "timestamp with time zone",
-                        nullable: false,
-                        defaultValueSql: "CURRENT_TIMESTAMP"
+                        nullable: false
                     ),
                     project_id = table.Column<long>(type: "bigint", nullable: false),
                 },
