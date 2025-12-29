@@ -2,7 +2,7 @@
 
 WORKDIR /app
 
-COPY TaskManagement.Backend.csproj .
+COPY *.csproj .
 
 RUN dotnet restore
 
